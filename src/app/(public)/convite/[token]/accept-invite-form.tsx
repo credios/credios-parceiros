@@ -31,7 +31,7 @@ export function AcceptInviteForm({ token }: { token: string }) {
   const strength = getStrength(password);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form action={formAction} className="flex flex-col gap-5">
       <h2 className="t-heading text-credios-charcoal">Crie sua senha</h2>
       <input type="hidden" name="token" value={token} />
 

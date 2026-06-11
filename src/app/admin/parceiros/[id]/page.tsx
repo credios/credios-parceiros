@@ -131,40 +131,40 @@ export default async function AdminPartnerDetailPage({
             <h2 className="t-heading text-credios-charcoal">Cadastro</h2>
             <dl className="mt-4 flex flex-col gap-3 text-sm">
               <div>
-                <dt className="t-caption text-neutral-500">CPF/CNPJ</dt>
-                <dd className="font-medium">{formatDocument(partner.document)}</dd>
+                <dt className="t-eyebrow text-neutral-400">CPF/CNPJ</dt>
+                <dd className="mt-1 font-medium">{formatDocument(partner.document)}</dd>
               </div>
               {partner.personType === "PJ" && partner.repName && (
                 <div>
-                  <dt className="t-caption text-neutral-500">Representante legal</dt>
-                  <dd className="font-medium">
+                  <dt className="t-eyebrow text-neutral-400">Representante legal</dt>
+                  <dd className="mt-1 font-medium">
                     {partner.repName}
                     {partner.repDocument && ` — ${formatDocument(partner.repDocument)}`}
                   </dd>
                 </div>
               )}
               <div>
-                <dt className="t-caption text-neutral-500">Email</dt>
-                <dd className="font-medium break-all">{partner.email}</dd>
+                <dt className="t-eyebrow text-neutral-400">Email</dt>
+                <dd className="mt-1 font-medium break-all">{partner.email}</dd>
               </div>
               <div>
-                <dt className="t-caption text-neutral-500">Telefone</dt>
-                <dd className="font-medium">{formatPhone(partner.phone)}</dd>
+                <dt className="t-eyebrow text-neutral-400">Telefone</dt>
+                <dd className="mt-1 font-medium">{formatPhone(partner.phone)}</dd>
               </div>
               <div>
-                <dt className="t-caption text-neutral-500">Localização</dt>
-                <dd className="font-medium">
+                <dt className="t-eyebrow text-neutral-400">Localização</dt>
+                <dd className="mt-1 font-medium">
                   {partner.city ? `${partner.city}${partner.state ? `/${partner.state}` : ""}` : "—"}
                 </dd>
               </div>
               <div>
-                <dt className="t-caption text-neutral-500">Chave PIX</dt>
-                <dd className="font-medium break-all">{partner.pixKey ?? "—"}</dd>
+                <dt className="t-eyebrow text-neutral-400">Chave PIX</dt>
+                <dd className="mt-1 font-medium break-all">{partner.pixKey ?? "—"}</dd>
               </div>
               {partner.notes && (
                 <div>
-                  <dt className="t-caption text-neutral-500">Notas internas</dt>
-                  <dd className="whitespace-pre-wrap text-neutral-600">{partner.notes}</dd>
+                  <dt className="t-eyebrow text-neutral-400">Notas internas</dt>
+                  <dd className="mt-1 whitespace-pre-wrap text-neutral-600">{partner.notes}</dd>
                 </div>
               )}
             </dl>
@@ -210,20 +210,26 @@ export default async function AdminPartnerDetailPage({
               <div className="mt-3 overflow-x-auto">
                 <table className="w-full min-w-lg text-sm">
                   <thead>
-                    <tr className="border-b border-neutral-100 text-left text-neutral-500">
-                      <th className="px-5 py-2.5 font-medium sm:px-6">Cliente</th>
-                      <th className="px-3 py-2.5 font-medium">Status</th>
-                      <th className="px-3 py-2.5 font-medium text-right">Valor desejado</th>
-                      <th className="px-5 py-2.5 font-medium sm:px-6">Atualizado</th>
+                    <tr className="border-b border-black/5 text-left">
+                      <th className="t-eyebrow px-5 py-3.5 text-neutral-400 sm:px-6">
+                        Cliente
+                      </th>
+                      <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Status</th>
+                      <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">
+                        Valor desejado
+                      </th>
+                      <th className="t-eyebrow px-5 py-3.5 text-neutral-400 sm:px-6">
+                        Atualizado
+                      </th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-black/5">
                     {partner.leads.map((lead) => (
                       <tr
                         key={lead.id}
-                        className="border-b border-neutral-100 last:border-b-0 transition-colors duration-150 hover:bg-credios-blue-50/40"
+                        className="transition-colors duration-150 hover:bg-credios-blue-50/40"
                       >
-                        <td className="px-5 py-3 sm:px-6">
+                        <td className="px-5 py-3.5 sm:px-6">
                           <Link
                             href={`/admin/leads/${lead.id}`}
                             className="font-medium text-credios-charcoal transition-colors duration-150 hover:text-credios-blue"
@@ -231,13 +237,13 @@ export default async function AdminPartnerDetailPage({
                             {lead.name}
                           </Link>
                         </td>
-                        <td className="px-3 py-3">
+                        <td className="px-3 py-3.5">
                           <LeadStatusBadge status={lead.status} />
                         </td>
-                        <td className="t-money px-3 py-3 text-right whitespace-nowrap">
+                        <td className="t-money px-3 py-3.5 text-right whitespace-nowrap">
                           {formatBRL(lead.requestedAmount)}
                         </td>
-                        <td className="px-5 py-3 text-neutral-500 whitespace-nowrap sm:px-6">
+                        <td className="t-caption px-5 py-3.5 text-neutral-400 whitespace-nowrap sm:px-6">
                           {timeAgo(lead.updatedAt)}
                         </td>
                       </tr>
@@ -260,28 +266,36 @@ export default async function AdminPartnerDetailPage({
               <div className="mt-3 overflow-x-auto">
                 <table className="w-full min-w-lg text-sm">
                   <thead>
-                    <tr className="border-b border-neutral-100 text-left text-neutral-500">
-                      <th className="px-5 py-2.5 font-medium sm:px-6">Cliente</th>
-                      <th className="px-3 py-2.5 font-medium text-right">Base</th>
-                      <th className="px-3 py-2.5 font-medium text-right">Valor</th>
-                      <th className="px-3 py-2.5 font-medium">Status</th>
-                      <th className="px-5 py-2.5 font-medium sm:px-6">Gerada em</th>
+                    <tr className="border-b border-black/5 text-left">
+                      <th className="t-eyebrow px-5 py-3.5 text-neutral-400 sm:px-6">
+                        Cliente
+                      </th>
+                      <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">
+                        Base
+                      </th>
+                      <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">
+                        Valor
+                      </th>
+                      <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Status</th>
+                      <th className="t-eyebrow px-5 py-3.5 text-neutral-400 sm:px-6">
+                        Gerada em
+                      </th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-black/5">
                     {partner.commissions.map((c) => (
-                      <tr key={c.id} className="border-b border-neutral-100 last:border-b-0">
-                        <td className="px-5 py-3 font-medium sm:px-6">{c.lead.name}</td>
-                        <td className="t-money px-3 py-3 text-right whitespace-nowrap">
+                      <tr key={c.id}>
+                        <td className="px-5 py-3.5 font-medium sm:px-6">{c.lead.name}</td>
+                        <td className="t-money px-3 py-3.5 text-right whitespace-nowrap">
                           {formatBRL(c.baseAmount)}
                         </td>
-                        <td className="t-money px-3 py-3 text-right whitespace-nowrap">
+                        <td className="t-money px-3 py-3.5 text-right whitespace-nowrap">
                           {formatBRL(c.amount)}
                         </td>
-                        <td className="px-3 py-3">
+                        <td className="px-3 py-3.5">
                           <CommissionStatusBadge status={c.status} />
                         </td>
-                        <td className="px-5 py-3 text-neutral-500 whitespace-nowrap sm:px-6">
+                        <td className="t-caption px-5 py-3.5 text-neutral-400 whitespace-nowrap sm:px-6">
                           {formatDate(c.createdAt)}
                         </td>
                       </tr>

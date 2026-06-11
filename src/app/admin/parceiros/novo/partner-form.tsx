@@ -26,7 +26,9 @@ export function PartnerForm() {
   return (
     <form action={formAction} className="flex flex-col gap-6">
       <Card>
-        <h2 className="t-heading text-credios-charcoal">Identificação</h2>
+        <h2 className="t-eyebrow border-b border-black/5 pb-3 text-credios-blue-700">
+          Identificação
+        </h2>
         <div className="mt-5 flex flex-col gap-5">
           <fieldset>
             <legend className="text-sm font-medium text-credios-charcoal">
@@ -122,7 +124,9 @@ export function PartnerForm() {
       </Card>
 
       <Card>
-        <h2 className="t-heading text-credios-charcoal">Contato e perfil</h2>
+        <h2 className="t-eyebrow border-b border-black/5 pb-3 text-credios-blue-700">
+          Contato e perfil
+        </h2>
         <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Field label="Email" htmlFor="email" required error={errors.email}>
             <Input id="email" name="email" type="email" autoComplete="email" />
@@ -170,7 +174,9 @@ export function PartnerForm() {
       </Card>
 
       <Card>
-        <h2 className="t-heading text-credios-charcoal">Comissão e notas</h2>
+        <h2 className="t-eyebrow border-b border-black/5 pb-3 text-credios-blue-700">
+          Comissão e notas
+        </h2>
         <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Field
             label="Taxa de comissão (%)"

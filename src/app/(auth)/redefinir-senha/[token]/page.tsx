@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { KeyRound } from "lucide-react";
+import { AuthShell } from "@/components/auth-shell";
 import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
 import { Card } from "@/components/ui/card";
@@ -13,8 +14,8 @@ export const metadata: Metadata = {
 
 function InvalidResetLink() {
   return (
-    <div className="mx-auto max-w-md px-4 sm:px-6 py-16 sm:py-24">
-      <Card tone="white" className="text-center sm:p-8">
+    <AuthShell>
+      <Card tone="white" className="text-center sm:p-8 shadow-md">
         <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-credios-blue-50">
           <KeyRound size={22} className="text-credios-blue" aria-hidden />
         </span>
@@ -29,7 +30,7 @@ function InvalidResetLink() {
           <ButtonLink href="/recuperar-senha">Pedir novo link</ButtonLink>
         </div>
       </Card>
-    </div>
+    </AuthShell>
   );
 }
 
@@ -50,14 +51,14 @@ export default async function ResetPasswordPage({
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 sm:px-6 py-12 sm:py-16">
-      <Card tone="white" className="sm:p-8">
+    <AuthShell>
+      <Card tone="white" className="sm:p-8 shadow-md">
         <h1 className="t-heading text-credios-charcoal">Criar nova senha</h1>
         <p className="t-body text-neutral-500 mt-1">
           Escolha uma senha com pelo menos 10 caracteres.
         </p>
         <ResetPasswordForm token={token} />
       </Card>
-    </div>
+    </AuthShell>
   );
 }

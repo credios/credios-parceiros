@@ -37,7 +37,7 @@ export function LeadStatusForm({
   const errors = state?.fieldErrors ?? {};
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form action={formAction} className="flex flex-col gap-5">
       <input type="hidden" name="leadId" value={leadId} />
 
       <Field label="Novo status" htmlFor="status" required error={errors.status}>
@@ -56,7 +56,7 @@ export function LeadStatusForm({
       </Field>
 
       {status === "LIBERADO" && (
-        <div className="flex flex-col gap-4 rounded-md bg-credios-gold-50 p-4">
+        <div className="flex flex-col gap-5 rounded-md border border-credios-gold/30 bg-credios-gold-50 p-4">
           <p className="t-caption text-credios-gold-900">
             Marcar como liberado gera a comissão do parceiro automaticamente, com a taxa
             atual congelada.

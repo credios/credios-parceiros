@@ -62,7 +62,7 @@ export function ProfileForm({
   }, [state]);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form action={formAction} className="flex flex-col gap-5">
       <FormError message={state?.error} />
       <Field label="Telefone" htmlFor="phone" required error={errors.phone}>
         <Input
@@ -76,9 +76,9 @@ export function ProfileForm({
         />
       </Field>
 
-      <div className="border-t border-black/5 pt-4 mt-1">
-        <h3 className="t-eyebrow text-neutral-500 mb-4">Recebimento</h3>
-        <div className="flex flex-col gap-4">
+      <div className="border-t border-black/5 pt-5 mt-3">
+        <h3 className="t-eyebrow text-credios-blue-700 mb-5">Recebimento</h3>
+        <div className="flex flex-col gap-5">
           <Field
             label="Chave PIX"
             htmlFor="pixKey"
@@ -93,7 +93,7 @@ export function ProfileForm({
               placeholder="Sua chave PIX"
             />
           </Field>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-3">
             <Field label="Banco" htmlFor="bankName" error={errors.bankName}>
               <Input
                 id="bankName"
@@ -152,8 +152,10 @@ export function PasswordForm() {
 
   return (
     <Card tone="white">
-      <h2 className="t-eyebrow text-neutral-500 mb-5">Senha</h2>
-      <form ref={formRef} action={formAction} className="flex flex-col gap-4">
+      <h2 className="t-eyebrow text-credios-blue-700 pb-3 border-b border-black/5 mb-5">
+        Senha
+      </h2>
+      <form ref={formRef} action={formAction} className="flex flex-col gap-5">
         <FormError message={state?.error} />
         <Field
           label="Senha atual"
@@ -168,7 +170,7 @@ export function PasswordForm() {
             autoComplete="current-password"
           />
         </Field>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-2">
           <Field
             label="Nova senha"
             htmlFor="password"

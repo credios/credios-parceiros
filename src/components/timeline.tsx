@@ -53,15 +53,22 @@ export function Timeline({ lead, events }: { lead: Lead; events: LeadStatusEvent
         // Destaque da etapa final: LIBERADO concluído é o momento de ouro.
         const goldFinale = released && step === "LIBERADO";
         const highlighted = state === "current" || goldFinale;
+        // Conector da última etapa concluída para a atual: azul desvanecendo.
+        const connectsToCurrent =
+          !negative && !released && state === "done" && i + 1 === reachedIndex;
 
         return (
-          <li key={step} className="relative flex gap-4 pb-8 last:pb-0">
+          <li key={step} className="relative flex gap-4 pb-10 last:pb-0">
             {!isLast && (
               <span
                 aria-hidden
                 className={cn(
                   "absolute left-4 top-9 bottom-0 w-px -translate-x-1/2",
-                  state === "done" && !goldFinale ? "bg-credios-blue" : "bg-neutral-200"
+                  state === "done" && !goldFinale
+                    ? connectsToCurrent
+                      ? "bg-gradient-to-b from-credios-blue to-neutral-200"
+                      : "bg-credios-blue"
+                    : "bg-neutral-200"
                 )}
               />
             )}
@@ -81,7 +88,7 @@ export function Timeline({ lead, events }: { lead: Lead; events: LeadStatusEvent
                 />
               </span>
             ) : state === "current" ? (
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white border-2 border-credios-blue shadow-glow-blue">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white border-2 border-credios-blue shadow-glow-blue animate-pulse-soft">
                 <span className="size-2.5 rounded-full bg-credios-blue" aria-hidden />
               </span>
             ) : (
@@ -102,7 +109,7 @@ export function Timeline({ lead, events }: { lead: Lead; events: LeadStatusEvent
                 {meta.label}
               </p>
               {state === "done" && date && (
-                <p className="t-caption text-neutral-500 mt-0.5">{formatDate(date)}</p>
+                <p className="t-caption text-neutral-400 mt-0.5">{formatDate(date)}</p>
               )}
               {highlighted && (
                 <>

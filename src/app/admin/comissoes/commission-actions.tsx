@@ -40,9 +40,9 @@ export function CopyPixButton({ pixKey }: { pixKey: string }) {
         toast.success("Chave PIX copiada.");
       }}
       title="Copiar chave PIX"
-      className="inline-flex min-h-11 max-w-48 items-center gap-1.5 rounded-md px-2 text-sm text-neutral-600 transition-colors duration-150 hover:bg-credios-blue-50 hover:text-credios-blue cursor-pointer"
+      className="inline-flex min-h-11 max-w-48 items-center gap-1.5 rounded-md px-2 text-neutral-600 transition-colors duration-150 hover:bg-credios-blue-50 hover:text-credios-blue cursor-pointer"
     >
-      <span className="truncate">{pixKey}</span>
+      <span className="truncate font-mono text-xs">{pixKey}</span>
       <Copy size={14} className="shrink-0" aria-hidden />
     </button>
   );

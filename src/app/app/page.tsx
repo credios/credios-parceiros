@@ -50,13 +50,15 @@ export default async function DashboardPage() {
   if (total === 0) {
     return (
       <>
-        <PageHeader
-          title="Bem-vindo ao portal"
-          description="Indique clientes, acompanhe cada etapa e receba sua comissão."
-        />
-        <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-neutral-200 bg-white px-6 py-14 text-center">
-          <span className="flex size-12 items-center justify-center rounded-full bg-credios-blue-50">
-            <Sparkles size={22} className="text-credios-blue" aria-hidden />
+        <div className="animate-fade-up">
+          <PageHeader
+            title="Bem-vindo ao portal"
+            description="Indique clientes, acompanhe cada etapa e receba sua comissão."
+          />
+        </div>
+        <div className="animate-fade-up-1 flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-neutral-200 bg-white px-8 py-16 text-center">
+          <span className="flex size-14 items-center justify-center rounded-full bg-gradient-to-br from-credios-blue-50 to-credios-blue-100">
+            <Sparkles size={24} className="text-credios-blue" aria-hidden />
           </span>
           <h2 className="t-heading text-credios-charcoal">
             Sua primeira indicação começa aqui
@@ -86,13 +88,15 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <PageHeader
-        title="Dashboard"
-        description="O resumo das suas indicações e comissões."
-        action={<ButtonLink href="/app/clientes/novo">Indicar cliente</ButtonLink>}
-      />
+      <div className="animate-fade-up">
+        <PageHeader
+          title="Dashboard"
+          description="O resumo das suas indicações e comissões."
+          action={<ButtonLink href="/app/clientes/novo">Indicar cliente</ButtonLink>}
+        />
+      </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="animate-fade-up-1 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Clientes indicados"
           value={String(total)}
@@ -118,7 +122,7 @@ export default async function DashboardPage() {
         />
       </div>
 
-      <section className="mt-8">
+      <section className="mt-8 animate-fade-up-2">
         <h2 className="t-heading text-credios-charcoal mb-4">Movimentações recentes</h2>
         <Card unpadded>
           <ul className="divide-y divide-black/5">
@@ -126,7 +130,7 @@ export default async function DashboardPage() {
               <li key={lead.id}>
                 <Link
                   href={`/app/clientes/${lead.id}`}
-                  className="flex items-center justify-between gap-3 px-5 py-4 min-h-11 transition-colors duration-150 hover:bg-neutral-50"
+                  className="flex items-center justify-between gap-3 px-5 py-4 min-h-11 transition-colors duration-150 hover:bg-credios-blue-50/40"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 min-w-0">
                     <p className="text-sm font-medium text-credios-charcoal truncate">

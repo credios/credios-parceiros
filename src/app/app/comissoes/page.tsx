@@ -56,23 +56,25 @@ export default async function ComissoesPage() {
 
   return (
     <>
-      <PageHeader
-        title="Comissões"
-        description="Sua comissão é gerada automaticamente quando o crédito é liberado."
-        action={
-          commissions.length > 0 ? (
-            <a
-              href="/api/partner/commissions/export"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 min-h-11 text-sm font-semibold text-credios-blue border border-credios-blue/60 transition-colors duration-150 hover:bg-credios-blue-50"
-            >
-              <Download size={16} aria-hidden />
-              Exportar CSV
-            </a>
-          ) : undefined
-        }
-      />
+      <div className="animate-fade-up">
+        <PageHeader
+          title="Comissões"
+          description="Sua comissão é gerada automaticamente quando o crédito é liberado."
+          action={
+            commissions.length > 0 ? (
+              <a
+                href="/api/partner/commissions/export"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 min-h-11 text-sm font-semibold text-credios-blue border border-credios-blue/60 transition-colors duration-150 hover:bg-credios-blue-50"
+              >
+                <Download size={16} aria-hidden />
+                Exportar CSV
+              </a>
+            ) : undefined
+          }
+        />
+      </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="animate-fade-up-1 grid gap-4 sm:grid-cols-2">
         <StatCard
           label="A receber"
           value={formatBRL(toReceive._sum.amount ?? 0)}
@@ -85,7 +87,7 @@ export default async function ComissoesPage() {
         />
       </div>
 
-      <section className="mt-8">
+      <section className="mt-8 animate-fade-up-2">
         <h2 className="t-heading text-credios-charcoal mb-4">Extrato</h2>
 
         {commissions.length === 0 ? (
@@ -101,29 +103,29 @@ export default async function ComissoesPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-black/5 text-left">
-                    <th className="t-caption text-neutral-500 font-medium px-5 py-3">
+                    <th className="t-eyebrow text-neutral-400 px-5 py-3">
                       Cliente
                     </th>
-                    <th className="t-caption text-neutral-500 font-medium px-5 py-3">
+                    <th className="t-eyebrow text-neutral-400 px-5 py-3 text-right">
                       Valor do crédito
                     </th>
-                    <th className="t-caption text-neutral-500 font-medium px-5 py-3">
+                    <th className="t-eyebrow text-neutral-400 px-5 py-3">
                       Taxa
                     </th>
-                    <th className="t-caption text-neutral-500 font-medium px-5 py-3">
+                    <th className="t-eyebrow text-neutral-400 px-5 py-3 text-right">
                       Comissão
                     </th>
-                    <th className="t-caption text-neutral-500 font-medium px-5 py-3">
+                    <th className="t-eyebrow text-neutral-400 px-5 py-3">
                       Status
                     </th>
-                    <th className="t-caption text-neutral-500 font-medium px-5 py-3">
+                    <th className="t-eyebrow text-neutral-400 px-5 py-3">
                       Pagamento
                     </th>
-                    <th className="t-caption text-neutral-500 font-medium px-5 py-3">
+                    <th className="t-eyebrow text-neutral-400 px-5 py-3">
                       Comprovante
                     </th>
                     {isPJ && (
-                      <th className="t-caption text-neutral-500 font-medium px-5 py-3">
+                      <th className="t-eyebrow text-neutral-400 px-5 py-3">
                         Nota fiscal
                       </th>
                     )}
@@ -131,26 +133,29 @@ export default async function ComissoesPage() {
                 </thead>
                 <tbody className="divide-y divide-black/5">
                   {commissions.map((c) => (
-                    <tr key={c.id}>
-                      <td className="px-5 py-3.5 font-medium text-credios-charcoal">
+                    <tr
+                      key={c.id}
+                      className="transition-colors duration-150 hover:bg-credios-blue-50/40"
+                    >
+                      <td className="px-5 py-4 font-medium text-credios-charcoal">
                         {c.lead.name}
                       </td>
-                      <td className="px-5 py-3.5 text-neutral-500">
+                      <td className="px-5 py-4 text-neutral-500 text-right tabular-nums">
                         {formatBRL(c.baseAmount)}
                       </td>
-                      <td className="px-5 py-3.5 text-neutral-500">
+                      <td className="px-5 py-4 text-neutral-500">
                         {formatPercent(c.rate)}
                       </td>
-                      <td className="px-5 py-3.5 t-money text-credios-charcoal">
+                      <td className="px-5 py-4 t-money text-credios-charcoal text-right">
                         {formatBRL(c.amount)}
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-5 py-4">
                         <CommissionStatusBadge status={c.status} />
                       </td>
-                      <td className="px-5 py-3.5 text-neutral-500">
+                      <td className="px-5 py-4 t-caption text-neutral-500">
                         {formatDate(c.paidAt)}
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-5 py-4">
                         {c.status === "PAGA" && proofIds.has(c.id) ? (
                           <a
                             href={`/api/partner/commissions/${c.id}/proof`}

@@ -1,6 +1,14 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Plug, Info } from "lucide-react";
+import {
+  Plug,
+  Info,
+  Webhook,
+  Clock,
+  TriangleAlert,
+  ShieldAlert,
+  ChevronDown,
+} from "lucide-react";
 import { requireAdminSession } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/cn";
@@ -63,12 +71,14 @@ export default async function AdminIntegrationsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Integrações"
-        description="Saúde da ponte entre o portal e o CRM."
-      />
+      <div className="animate-fade-up">
+        <PageHeader
+          title="Integrações"
+          description="Saúde da ponte entre o portal e o CRM."
+        />
+      </div>
 
-      <div className="mb-6 flex items-start gap-2 rounded-md bg-status-info-bg px-4 py-3">
+      <div className="animate-fade-up-1 mb-6 flex items-start gap-2 rounded-md bg-status-info-bg px-4 py-3">
         <Info size={16} className="mt-0.5 shrink-0 text-status-info" aria-hidden />
         <p className="text-sm text-status-info">
           O portal funciona de ponta a ponta sem o CRM conectado — atualize status
@@ -80,9 +90,22 @@ export default async function AdminIntegrationsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="animate-fade-up-1 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
-          <p className="t-eyebrow text-neutral-500">Último webhook recebido</p>
+          <div className="flex items-center gap-2">
+            <Webhook
+              size={16}
+              className={cn(
+                lastInbound
+                  ? lastInbound.success
+                    ? "text-status-success"
+                    : "text-status-danger"
+                  : "text-neutral-400"
+              )}
+              aria-hidden
+            />
+            <p className="t-eyebrow text-neutral-500">Último webhook recebido</p>
+          </div>
           {lastInbound ? (
             <>
               <p className="mt-2 text-lg font-semibold text-credios-charcoal">
@@ -101,15 +124,52 @@ export default async function AdminIntegrationsPage() {
           )}
         </Card>
         <Card>
-          <p className="t-eyebrow text-neutral-500">Aguardando sync</p>
-          <p className="t-money mt-2 text-3xl text-status-warning">{pendingCount}</p>
+          <div className="flex items-center gap-2">
+            <Clock
+              size={16}
+              className={pendingCount > 0 ? "text-status-warning" : "text-status-success"}
+              aria-hidden
+            />
+            <p className="t-eyebrow text-neutral-500">Aguardando sync</p>
+          </div>
+          <p
+            className={cn(
+              "t-money mt-2 text-3xl",
+              pendingCount > 0 ? "text-status-warning" : "text-credios-charcoal"
+            )}
+          >
+            {pendingCount}
+          </p>
         </Card>
         <Card>
-          <p className="t-eyebrow text-neutral-500">Falhas de sync</p>
-          <p className="t-money mt-2 text-3xl text-status-danger">{failedCount}</p>
+          <div className="flex items-center gap-2">
+            <TriangleAlert
+              size={16}
+              className={failedCount > 0 ? "text-status-danger" : "text-status-success"}
+              aria-hidden
+            />
+            <p className="t-eyebrow text-neutral-500">Falhas de sync</p>
+          </div>
+          <p
+            className={cn(
+              "t-money mt-2 text-3xl",
+              failedCount > 0 ? "text-status-danger" : "text-credios-charcoal"
+            )}
+          >
+            {failedCount}
+          </p>
         </Card>
         <Card>
-          <p className="t-eyebrow text-neutral-500">Webhooks com erro (24h)</p>
+          <div className="flex items-center gap-2">
+            <ShieldAlert
+              size={16}
+              className={
+                inboundErrors24h > 0 ? "text-status-danger" : "text-status-success"
+              }
+              aria-hidden
+            />
+            <p className="t-eyebrow text-neutral-500">Webhooks com erro (24h)</p>
+          </div>
           <p
             className={cn(
               "t-money mt-2 text-3xl",
@@ -121,33 +181,35 @@ export default async function AdminIntegrationsPage() {
         </Card>
       </div>
 
-      <div className="mt-8 mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="animate-fade-up-2 mt-8 mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="t-heading text-credios-charcoal">Fila de reprocessamento</h2>
         {queue.length > 0 && <ReprocessAllButton />}
       </div>
       {queue.length === 0 ? (
-        <EmptyState
-          icon={Plug}
-          title="Fila vazia"
-          description="Todos os leads estão sincronizados com o CRM."
-        />
+        <div className="animate-fade-up-2">
+          <EmptyState
+            icon={Plug}
+            title="Fila vazia"
+            description="Todos os leads estão sincronizados com o CRM."
+          />
+        </div>
       ) : (
-        <Card unpadded>
+        <Card unpadded className="animate-fade-up-2">
           <div className="overflow-x-auto">
             <table className="w-full min-w-2xl text-sm">
               <thead>
-                <tr className="border-b border-neutral-100 text-left text-neutral-500">
-                  <th className="px-5 py-3 font-medium">Cliente</th>
-                  <th className="px-3 py-3 font-medium">Parceiro</th>
-                  <th className="px-3 py-3 font-medium">Situação</th>
-                  <th className="px-3 py-3 font-medium">Criado</th>
-                  <th className="px-5 py-3 font-medium">Ação</th>
+                <tr className="border-b border-black/5 text-left">
+                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Cliente</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Parceiro</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Situação</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Criado</th>
+                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Ação</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-black/5">
                 {queue.map((lead) => (
-                  <tr key={lead.id} className="border-b border-neutral-100 last:border-b-0">
-                    <td className="px-5 py-3">
+                  <tr key={lead.id}>
+                    <td className="px-5 py-3.5">
                       <Link
                         href={`/admin/leads/${lead.id}`}
                         className="font-medium text-credios-charcoal transition-colors duration-150 hover:text-credios-blue"
@@ -155,20 +217,20 @@ export default async function AdminIntegrationsPage() {
                         {lead.name}
                       </Link>
                     </td>
-                    <td className="px-3 py-3 text-neutral-600">
+                    <td className="px-3 py-3.5 text-neutral-600">
                       {lead.partner.legalName}
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="px-3 py-3.5">
                       {lead.crmSyncStatus === "FAILED" ? (
                         <Badge tone="danger">Falha</Badge>
                       ) : (
                         <Badge tone="warning">Pendente</Badge>
                       )}
                     </td>
-                    <td className="px-3 py-3 text-neutral-500 whitespace-nowrap">
+                    <td className="t-caption px-3 py-3.5 text-neutral-400 whitespace-nowrap">
                       {timeAgo(lead.createdAt)}
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-5 py-3.5">
                       <ReprocessSyncButton leadId={lead.id} />
                     </td>
                   </tr>
@@ -179,16 +241,25 @@ export default async function AdminIntegrationsPage() {
         </Card>
       )}
 
-      <h2 className="t-heading mt-10 mb-4 text-credios-charcoal">Log de integração</h2>
+      <h2 className="t-heading animate-fade-up-2 mt-10 mb-4 text-credios-charcoal">
+        Log de integração
+      </h2>
       {logs.length === 0 ? (
-        <p className="t-body text-neutral-500">Nenhuma entrada de log ainda.</p>
+        <p className="t-body animate-fade-up-2 text-neutral-500">
+          Nenhuma entrada de log ainda.
+        </p>
       ) : (
-        <Card unpadded>
-          <ul className="divide-y divide-neutral-100">
+        <Card unpadded className="animate-fade-up-2">
+          <ul className="divide-y divide-black/5">
             {logs.map((log) => (
               <li key={log.id}>
-                <details className="group px-5 py-3 sm:px-6">
-                  <summary className="flex min-h-11 cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 list-none">
+                <details className="group">
+                  <summary className="flex min-h-11 cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 list-none px-5 py-3 transition-colors duration-150 hover:bg-neutral-50 sm:px-6">
+                    <ChevronDown
+                      size={15}
+                      className="shrink-0 text-neutral-400 transition-transform duration-300 ease-out group-open:rotate-180"
+                      aria-hidden
+                    />
                     <Badge tone={log.direction === "INBOUND" ? "info" : "neutral"}>
                       {log.direction === "INBOUND" ? "CRM → portal" : "Portal → CRM"}
                     </Badge>
@@ -209,18 +280,18 @@ export default async function AdminIntegrationsPage() {
                       {formatDateTime(log.createdAt)}
                     </span>
                   </summary>
-                  <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-3 px-5 pt-1 pb-4 sm:px-6 lg:grid-cols-2">
                     <div>
-                      <p className="t-caption mb-1 text-neutral-500">Payload</p>
-                      <pre className="max-h-64 overflow-auto rounded-md bg-neutral-50 p-3 font-mono text-xs text-neutral-700">
+                      <p className="t-eyebrow mb-1.5 text-neutral-400">Payload</p>
+                      <pre className="max-h-64 overflow-auto rounded-md bg-credios-charcoal p-4 font-mono text-xs leading-relaxed text-neutral-100">
                         {prettyJson(log.payload)}
                       </pre>
                     </div>
                     <div>
-                      <p className="t-caption mb-1 text-neutral-500">
+                      <p className="t-eyebrow mb-1.5 text-neutral-400">
                         Resposta{log.retries > 0 ? ` (retries: ${log.retries})` : ""}
                       </p>
-                      <pre className="max-h-64 overflow-auto rounded-md bg-neutral-50 p-3 font-mono text-xs text-neutral-700">
+                      <pre className="max-h-64 overflow-auto rounded-md bg-credios-charcoal p-4 font-mono text-xs leading-relaxed text-neutral-100">
                         {log.response ? prettyJson(log.response) : "—"}
                       </pre>
                     </div>

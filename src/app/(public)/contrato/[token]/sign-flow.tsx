@@ -49,9 +49,10 @@ function Stepper({ current }: { current: Step }) {
           <li key={step.key} className="flex items-center gap-2">
             <span
               className={cn(
-                "flex size-6 items-center justify-center rounded-full text-xs font-semibold transition-colors duration-300",
+                "flex size-6 items-center justify-center rounded-full text-xs font-semibold transition-[background-color,color,box-shadow] duration-300",
                 isDone && "bg-credios-blue text-white",
-                isCurrent && "bg-credios-blue-50 text-credios-blue ring-1 ring-credios-blue",
+                isCurrent &&
+                  "bg-white text-credios-blue-700 ring-2 ring-credios-blue",
                 !isDone && !isCurrent && "bg-neutral-100 text-neutral-400"
               )}
               aria-hidden
@@ -61,13 +62,23 @@ function Stepper({ current }: { current: Step }) {
             <span
               className={cn(
                 "t-caption transition-colors duration-300",
-                isCurrent ? "font-semibold text-credios-charcoal" : "text-neutral-400"
+                isDone
+                  ? "text-neutral-500"
+                  : isCurrent
+                    ? "font-semibold text-credios-charcoal"
+                    : "text-neutral-400"
               )}
             >
               {step.label}
             </span>
             {i < STEPS.length - 1 && (
-              <span className="h-px w-4 sm:w-8 bg-neutral-200" aria-hidden />
+              <span
+                className={cn(
+                  "h-px w-4 sm:w-8 transition-colors duration-300",
+                  isDone ? "bg-credios-blue" : "bg-neutral-200"
+                )}
+                aria-hidden
+              />
             )}
           </li>
         );
@@ -188,7 +199,7 @@ export function SignFlow({
       <Stepper current={step} />
 
       {/* Documento — sempre visível para consulta durante todo o fluxo */}
-      <div className="rounded-lg border border-black/5 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-lg border border-black/5 bg-white shadow-md overflow-hidden">
         <div className="flex items-center justify-between border-b border-black/5 px-4 sm:px-6 py-3">
           <p className="t-caption text-neutral-500">Documento para assinatura</p>
           <a
@@ -325,6 +336,7 @@ export function SignFlow({
           <Button
             onClick={sign}
             disabled={pending || !agreed}
+            variant="secondary"
             size="lg"
             className="w-full sm:w-fit"
           >

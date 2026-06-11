@@ -73,20 +73,20 @@ export default async function AdminLeadDetailPage({
             <h2 className="t-heading text-credios-charcoal">Cliente</h2>
             <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
               <div>
-                <dt className="t-caption text-neutral-500">CPF/CNPJ</dt>
-                <dd className="font-medium">{formatDocument(lead.document)}</dd>
+                <dt className="t-eyebrow text-neutral-400">CPF/CNPJ</dt>
+                <dd className="mt-1 font-medium">{formatDocument(lead.document)}</dd>
               </div>
               <div>
-                <dt className="t-caption text-neutral-500">Telefone</dt>
-                <dd className="font-medium">{formatPhone(lead.phone)}</dd>
+                <dt className="t-eyebrow text-neutral-400">Telefone</dt>
+                <dd className="mt-1 font-medium">{formatPhone(lead.phone)}</dd>
               </div>
               <div>
-                <dt className="t-caption text-neutral-500">Email</dt>
-                <dd className="font-medium break-all">{lead.email ?? "—"}</dd>
+                <dt className="t-eyebrow text-neutral-400">Email</dt>
+                <dd className="mt-1 font-medium break-all">{lead.email ?? "—"}</dd>
               </div>
               <div>
-                <dt className="t-caption text-neutral-500">Localização</dt>
-                <dd className="font-medium">
+                <dt className="t-eyebrow text-neutral-400">Localização</dt>
+                <dd className="mt-1 font-medium">
                   {lead.city ? `${lead.city}${lead.state ? `/${lead.state}` : ""}` : "—"}
                 </dd>
               </div>
@@ -103,28 +103,28 @@ export default async function AdminLeadDetailPage({
             <h2 className="t-heading text-credios-charcoal">Operação</h2>
             <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
               <div>
-                <dt className="t-caption text-neutral-500">Produto</dt>
-                <dd className="font-medium">{productLabel}</dd>
+                <dt className="t-eyebrow text-neutral-400">Produto</dt>
+                <dd className="mt-1 font-medium">{productLabel}</dd>
               </div>
               <div>
-                <dt className="t-caption text-neutral-500">Valor desejado</dt>
-                <dd className="t-money">{formatBRL(lead.requestedAmount)}</dd>
+                <dt className="t-eyebrow text-neutral-400">Valor desejado</dt>
+                <dd className="t-money mt-1">{formatBRL(lead.requestedAmount)}</dd>
               </div>
               <div>
-                <dt className="t-caption text-neutral-500">Valor do imóvel</dt>
-                <dd className="t-money">{formatBRL(lead.propertyValue)}</dd>
+                <dt className="t-eyebrow text-neutral-400">Valor do imóvel</dt>
+                <dd className="t-money mt-1">{formatBRL(lead.propertyValue)}</dd>
               </div>
               <div>
-                <dt className="t-caption text-neutral-500">Cidade do imóvel</dt>
-                <dd className="font-medium">{lead.propertyCity ?? "—"}</dd>
+                <dt className="t-eyebrow text-neutral-400">Cidade do imóvel</dt>
+                <dd className="mt-1 font-medium">{lead.propertyCity ?? "—"}</dd>
               </div>
               <div>
-                <dt className="t-caption text-neutral-500">Valor aprovado</dt>
-                <dd className="t-money">{formatBRL(lead.approvedAmount)}</dd>
+                <dt className="t-eyebrow text-neutral-400">Valor aprovado</dt>
+                <dd className="t-money mt-1">{formatBRL(lead.approvedAmount)}</dd>
               </div>
               <div>
-                <dt className="t-caption text-neutral-500">Valor liberado</dt>
-                <dd className="t-money">
+                <dt className="t-eyebrow text-neutral-400">Valor liberado</dt>
+                <dd className="t-money mt-1">
                   {formatBRL(lead.disbursedAmount)}
                   {lead.disbursedAt && (
                     <span className="t-caption ml-1.5 font-normal text-neutral-500">
@@ -149,33 +149,54 @@ export default async function AdminLeadDetailPage({
             {lead.statusHistory.length === 0 ? (
               <p className="t-body mt-4 text-neutral-500">Nenhum evento registrado.</p>
             ) : (
-              <ol className="mt-4 flex flex-col divide-y divide-neutral-100">
-                {lead.statusHistory.map((event) => (
-                  <li key={event.id} className="flex flex-col gap-1 py-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {event.from && (
-                        <>
-                          <span className="t-caption text-neutral-500">
-                            {STATUS_META[event.from].label}
-                          </span>
-                          <ArrowRight size={12} className="text-neutral-400" aria-hidden />
-                        </>
+              <ol className="mt-5 flex flex-col">
+                {lead.statusHistory.map((event, index) => (
+                  <li key={event.id} className="relative flex gap-4 pb-5 last:pb-0">
+                    <span
+                      className="relative flex w-2.5 shrink-0 justify-center"
+                      aria-hidden
+                    >
+                      <span
+                        className={
+                          index === 0
+                            ? "mt-1 size-2.5 rounded-full bg-credios-blue"
+                            : "mt-1 size-2.5 rounded-full bg-neutral-200"
+                        }
+                      />
+                      {index < lead.statusHistory.length - 1 && (
+                        <span className="absolute inset-x-0 top-5 bottom-0 mx-auto w-px bg-neutral-200" />
                       )}
-                      <span className="text-sm font-medium text-credios-charcoal">
-                        {STATUS_META[event.to].label}
-                      </span>
-                      <Badge tone="neutral">
-                        {SOURCE_LABEL[event.source] ?? event.source}
-                      </Badge>
+                    </span>
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {event.from && (
+                          <>
+                            <span className="t-caption text-neutral-500">
+                              {STATUS_META[event.from].label}
+                            </span>
+                            <ArrowRight
+                              size={12}
+                              className="text-neutral-400"
+                              aria-hidden
+                            />
+                          </>
+                        )}
+                        <span className="text-sm font-medium text-credios-charcoal">
+                          {STATUS_META[event.to].label}
+                        </span>
+                        <Badge tone="neutral">
+                          {SOURCE_LABEL[event.source] ?? event.source}
+                        </Badge>
+                      </div>
+                      <p className="t-caption text-neutral-400">
+                        {formatDateTime(event.createdAt)}
+                        {event.actorId &&
+                          ` — por ${actorName.get(event.actorId) ?? "usuário removido"}`}
+                      </p>
+                      {event.note && (
+                        <p className="text-sm text-neutral-600">{event.note}</p>
+                      )}
                     </div>
-                    <p className="t-caption text-neutral-500">
-                      {formatDateTime(event.createdAt)}
-                      {event.actorId &&
-                        ` — por ${actorName.get(event.actorId) ?? "usuário removido"}`}
-                    </p>
-                    {event.note && (
-                      <p className="text-sm text-neutral-600">{event.note}</p>
-                    )}
                   </li>
                 ))}
               </ol>

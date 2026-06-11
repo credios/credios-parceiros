@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { CheckCircle2 } from "lucide-react";
+import { AuthShell } from "@/components/auth-shell";
 import { Card } from "@/components/ui/card";
 import { LoginForm } from "./login-form";
 
@@ -18,20 +18,10 @@ export default async function LoginPage({
   const resetOk = params.reset === "ok";
 
   return (
-    <div className="mx-auto flex max-w-md flex-col px-4 sm:px-6 py-12 sm:py-16">
-      <div className="flex justify-center mb-6">
-        <Image
-          src="/credios-logo.png"
-          alt="Credios"
-          width={150}
-          height={40}
-          className="h-10 w-auto"
-          priority
-        />
-      </div>
-      <Card tone="white" className="sm:p-8">
-        <h1 className="t-heading text-credios-charcoal">Entrar no portal</h1>
-        <p className="t-body text-neutral-500 mt-1">
+    <AuthShell>
+      <Card tone="white" className="sm:p-8 shadow-md">
+        <h1 className="t-display-md text-credios-charcoal">Entrar</h1>
+        <p className="t-body text-neutral-500 mt-1.5">
           Acompanhe suas indicações e comissões.
         </p>
         {resetOk && (
@@ -51,6 +41,6 @@ export default async function LoginPage({
         )}
         <LoginForm />
       </Card>
-    </div>
+    </AuthShell>
   );
 }

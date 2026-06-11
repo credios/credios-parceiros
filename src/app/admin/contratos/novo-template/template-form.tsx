@@ -19,6 +19,9 @@ export function TemplateForm({ initialBodyHtml }: { initialBodyHtml: string }) {
   return (
     <form action={formAction} className="flex flex-col gap-5">
       <Card>
+        <h2 className="t-eyebrow mb-5 border-b border-black/5 pb-3 text-credios-blue-700">
+          Conteúdo do contrato
+        </h2>
         <Field
           label="Nome da versão"
           htmlFor="name"

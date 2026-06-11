@@ -76,18 +76,20 @@ export default async function AdminCommissionsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Comissões"
-        description="Fila de pagamento e histórico — pagar rápido é o coração da confiança do parceiro."
-        action={
-          <ButtonLink href="/api/admin/commissions/export" variant="outline">
-            <Download size={16} aria-hidden />
-            Exportar CSV
-          </ButtonLink>
-        }
-      />
+      <div className="animate-fade-up">
+        <PageHeader
+          title="Comissões"
+          description="Fila de pagamento e histórico — pagar rápido é o coração da confiança do parceiro."
+          action={
+            <ButtonLink href="/api/admin/commissions/export" variant="outline">
+              <Download size={16} aria-hidden />
+              Exportar CSV
+            </ButtonLink>
+          }
+        />
+      </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="animate-fade-up-1 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           label="A pagar"
           value={formatBRL(toPayAgg._sum.amount ?? 0)}
@@ -98,37 +100,40 @@ export default async function AdminCommissionsPage() {
         <StatCard label="Pago no ano" value={formatBRL(paidYearAgg._sum.amount ?? 0)} />
       </div>
 
-      <h2 className="t-heading mt-8 mb-4 text-credios-charcoal">Fila a receber</h2>
+      <h2 className="t-heading animate-fade-up-2 mt-8 mb-4 text-credios-charcoal">
+        Fila a receber
+      </h2>
       {queue.length === 0 ? (
-        <EmptyState
-          icon={HandCoins}
-          title="Fila vazia"
-          description="Nenhuma comissão aguardando pagamento. Quando um crédito for liberado, ela aparece aqui."
-        />
+        <div className="animate-fade-up-2">
+          <EmptyState
+            icon={HandCoins}
+            title="Fila vazia"
+            description="Nenhuma comissão aguardando pagamento. Quando um crédito for liberado, ela aparece aqui."
+          />
+        </div>
       ) : (
-        <Card unpadded>
+        <Card unpadded className="animate-fade-up-2">
           <div className="overflow-x-auto">
             <table className="w-full min-w-4xl text-sm">
               <thead>
-                <tr className="border-b border-neutral-100 text-left text-neutral-500">
-                  <th className="px-5 py-3 font-medium">Parceiro</th>
-                  <th className="px-3 py-3 font-medium">Cliente</th>
-                  <th className="px-3 py-3 font-medium text-right">Base</th>
-                  <th className="px-3 py-3 font-medium text-right">Taxa</th>
-                  <th className="px-3 py-3 font-medium text-right">Valor</th>
-                  <th className="px-3 py-3 font-medium">Gerada em</th>
-                  <th className="px-3 py-3 font-medium">Chave PIX</th>
-                  <th className="px-3 py-3 font-medium">NF</th>
-                  <th className="px-5 py-3 font-medium">Ações</th>
+                <tr className="border-b border-black/5 text-left">
+                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Parceiro</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Cliente</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">Base</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">Taxa</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">
+                    Valor
+                  </th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Gerada em</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Chave PIX</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">NF</th>
+                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Ações</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-black/5">
                 {queue.map((c) => (
-                  <tr
-                    key={c.id}
-                    className="border-b border-neutral-100 align-top last:border-b-0"
-                  >
-                    <td className="px-5 py-3">
+                  <tr key={c.id} className="align-top">
+                    <td className="px-5 py-3.5">
                       <Link
                         href={`/admin/parceiros/${c.partner.id}`}
                         className="font-medium text-credios-charcoal transition-colors duration-150 hover:text-credios-blue"
@@ -136,7 +141,7 @@ export default async function AdminCommissionsPage() {
                         {c.partner.legalName}
                       </Link>
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="px-3 py-3.5">
                       <Link
                         href={`/admin/leads/${c.lead.id}`}
                         className="text-neutral-600 transition-colors duration-150 hover:text-credios-blue"
@@ -144,26 +149,26 @@ export default async function AdminCommissionsPage() {
                         {c.lead.name}
                       </Link>
                     </td>
-                    <td className="t-money px-3 py-3 text-right whitespace-nowrap">
+                    <td className="t-money px-3 py-3.5 text-right whitespace-nowrap">
                       {formatBRL(c.baseAmount)}
                     </td>
-                    <td className="t-money px-3 py-3 text-right whitespace-nowrap">
+                    <td className="t-money px-3 py-3.5 text-right whitespace-nowrap">
                       {formatPercent(c.rate)}
                     </td>
-                    <td className="t-money px-3 py-3 text-right whitespace-nowrap text-credios-gold-700">
+                    <td className="t-money px-3 py-3.5 text-right text-lg whitespace-nowrap text-credios-gold-700">
                       {formatBRL(c.amount)}
                     </td>
-                    <td className="px-3 py-3 text-neutral-500 whitespace-nowrap">
+                    <td className="t-caption px-3 py-3.5 text-neutral-400 whitespace-nowrap">
                       {formatDate(c.createdAt)}
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="px-3 py-3.5">
                       {c.partner.pixKey ? (
                         <CopyPixButton pixKey={c.partner.pixKey} />
                       ) : (
                         <span className="t-caption text-neutral-400">não cadastrada</span>
                       )}
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="px-3 py-3.5">
                       {c.invoiceName || c.invoiceMime ? (
                         <Link
                           href={`/api/admin/commissions/${c.id}/invoice`}
@@ -178,7 +183,7 @@ export default async function AdminCommissionsPage() {
                         <span className="t-caption text-neutral-400">—</span>
                       )}
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-5 py-3.5">
                       <div className="flex flex-col items-start gap-2">
                         <MarkPaidForm commissionId={c.id} />
                         <CancelCommissionForm commissionId={c.id} />
@@ -200,19 +205,21 @@ export default async function AdminCommissionsPage() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-2xl text-sm">
               <thead>
-                <tr className="border-b border-neutral-100 text-left text-neutral-500">
-                  <th className="px-5 py-3 font-medium">Parceiro</th>
-                  <th className="px-3 py-3 font-medium">Cliente</th>
-                  <th className="px-3 py-3 font-medium text-right">Valor</th>
-                  <th className="px-3 py-3 font-medium">Status</th>
-                  <th className="px-3 py-3 font-medium">Pagamento</th>
-                  <th className="px-5 py-3 font-medium">Comprovante</th>
+                <tr className="border-b border-black/5 text-left">
+                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Parceiro</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Cliente</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">
+                    Valor
+                  </th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Status</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Pagamento</th>
+                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Comprovante</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-black/5">
                 {history.map((c) => (
-                  <tr key={c.id} className="border-b border-neutral-100 last:border-b-0">
-                    <td className="px-5 py-3">
+                  <tr key={c.id}>
+                    <td className="px-5 py-3.5">
                       <Link
                         href={`/admin/parceiros/${c.partner.id}`}
                         className="font-medium text-credios-charcoal transition-colors duration-150 hover:text-credios-blue"
@@ -220,17 +227,17 @@ export default async function AdminCommissionsPage() {
                         {c.partner.legalName}
                       </Link>
                     </td>
-                    <td className="px-3 py-3 text-neutral-600">{c.lead.name}</td>
-                    <td className="t-money px-3 py-3 text-right whitespace-nowrap">
+                    <td className="px-3 py-3.5 text-neutral-600">{c.lead.name}</td>
+                    <td className="t-money px-3 py-3.5 text-right whitespace-nowrap">
                       {formatBRL(c.amount)}
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="px-3 py-3.5">
                       <CommissionStatusBadge status={c.status} />
                     </td>
-                    <td className="px-3 py-3 text-neutral-500 whitespace-nowrap">
+                    <td className="t-caption px-3 py-3.5 text-neutral-400 whitespace-nowrap">
                       {formatDate(c.paidAt)}
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-5 py-3.5">
                       {c.paymentProofMime ? (
                         <Link
                           href={`/api/admin/commissions/${c.id}/proof`}

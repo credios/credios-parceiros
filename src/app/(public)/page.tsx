@@ -139,7 +139,7 @@ export default function LandingPage() {
 
       {/* Como funciona */}
       <section className="bg-credios-ivory">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
           <Reveal>
             <p className="t-eyebrow text-credios-blue">Como funciona</p>
             <h2 className="t-display-md text-credios-charcoal mt-3 max-w-xl">
@@ -167,7 +167,7 @@ export default function LandingPage() {
 
       {/* Destaque numérico */}
       <section className="bg-white">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
           <Reveal>
             <Card tone="dark" unpadded className="px-6 py-10 sm:px-12 sm:py-14 text-center">
               <p className="t-eyebrow text-credios-gold-300">Na prática</p>
@@ -191,7 +191,7 @@ export default function LandingPage() {
 
       {/* Para quem é */}
       <section className="bg-credios-ivory">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
           <Reveal>
             <p className="t-eyebrow text-credios-blue">Para quem é</p>
             <h2 className="t-display-md text-credios-charcoal mt-3 max-w-xl">
@@ -206,8 +206,13 @@ export default function LandingPage() {
             {ARCHETYPES.map((a, i) => {
               const Icon = archetypeIcons[a.value] ?? Users;
               return (
-                <Reveal key={a.value} delay={i * 60}>
-                  <Card tone="white" unpadded className="h-full flex flex-col gap-3 p-4 sm:p-5">
+                <Reveal key={a.value} delay={i * 60} className="h-full">
+                  <Card
+                    tone="white"
+                    interactive
+                    unpadded
+                    className="h-full flex flex-col gap-3 p-4 sm:p-5"
+                  >
                     <span className="flex size-11 items-center justify-center rounded-md bg-credios-gold/15">
                       <Icon size={18} className="text-credios-gold-700" aria-hidden />
                     </span>
@@ -224,7 +229,7 @@ export default function LandingPage() {
 
       {/* FAQ */}
       <section className="bg-white">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-16 sm:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-16 sm:py-24">
           <Reveal>
             <p className="t-eyebrow text-credios-blue">Perguntas frequentes</p>
             <h2 className="t-display-md text-credios-charcoal mt-3">
@@ -256,7 +261,7 @@ export default function LandingPage() {
 
       {/* Prova institucional + CTA final */}
       <section className="bg-credios-charcoal">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-20 text-center">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24 text-center">
           <Reveal>
             <h2 className="t-display-md text-white max-w-2xl mx-auto">
               Uma parceria com quem opera crédito imobiliário desde 2019

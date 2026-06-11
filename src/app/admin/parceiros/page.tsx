@@ -45,18 +45,20 @@ export default async function AdminPartnersPage({
 
   return (
     <div>
-      <PageHeader
-        title="Parceiros"
-        description="Quem indica clientes para a Credios."
-        action={
-          <ButtonLink href="/admin/parceiros/novo">
-            <Plus size={16} aria-hidden />
-            Novo parceiro
-          </ButtonLink>
-        }
-      />
+      <div className="animate-fade-up">
+        <PageHeader
+          title="Parceiros"
+          description="Quem indica clientes para a Credios."
+          action={
+            <ButtonLink href="/admin/parceiros/novo">
+              <Plus size={16} aria-hidden />
+              Novo parceiro
+            </ButtonLink>
+          }
+        />
+      </div>
 
-      <form className="mb-5 flex max-w-md gap-2" action="/admin/parceiros">
+      <form className="animate-fade-up-1 mb-5 flex max-w-md gap-2" action="/admin/parceiros">
         <Input
           type="search"
           name="q"
@@ -71,43 +73,49 @@ export default async function AdminPartnersPage({
       </form>
 
       {partners.length === 0 ? (
-        <EmptyState
-          icon={Handshake}
-          title={q ? "Nenhum parceiro encontrado" : "Nenhum parceiro ainda"}
-          description={
-            q
-              ? "Confira a grafia ou tente buscar pelo CPF/CNPJ."
-              : "Cadastre o primeiro parceiro para começar a receber indicações."
-          }
-          action={
-            <ButtonLink href="/admin/parceiros/novo">
-              <Plus size={16} aria-hidden />
-              Novo parceiro
-            </ButtonLink>
-          }
-        />
+        <div className="animate-fade-up-2">
+          <EmptyState
+            icon={Handshake}
+            title={q ? "Nenhum parceiro encontrado" : "Nenhum parceiro ainda"}
+            description={
+              q
+                ? "Confira a grafia ou tente buscar pelo CPF/CNPJ."
+                : "Cadastre o primeiro parceiro para começar a receber indicações."
+            }
+            action={
+              <ButtonLink href="/admin/parceiros/novo">
+                <Plus size={16} aria-hidden />
+                Novo parceiro
+              </ButtonLink>
+            }
+          />
+        </div>
       ) : (
-        <Card unpadded>
+        <Card unpadded className="animate-fade-up-2">
           <div className="overflow-x-auto">
             <table className="w-full min-w-2xl text-sm">
               <thead>
-                <tr className="border-b border-neutral-100 text-left text-neutral-500">
-                  <th className="px-5 py-3 font-medium">Nome / razão social</th>
-                  <th className="px-3 py-3 font-medium">Tipo</th>
-                  <th className="px-3 py-3 font-medium">Documento</th>
-                  <th className="px-3 py-3 font-medium">Status</th>
-                  <th className="px-3 py-3 font-medium text-right">Taxa</th>
-                  <th className="px-3 py-3 font-medium text-right">Leads</th>
-                  <th className="px-5 py-3 font-medium">Criado em</th>
+                <tr className="border-b border-black/5 text-left">
+                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">
+                    Nome / razão social
+                  </th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Tipo</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Documento</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Status</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">Taxa</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">
+                    Leads
+                  </th>
+                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Criado em</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-black/5">
                 {partners.map((p) => (
                   <tr
                     key={p.id}
-                    className="border-b border-neutral-100 last:border-b-0 transition-colors duration-150 hover:bg-credios-blue-50/40"
+                    className="transition-colors duration-150 hover:bg-credios-blue-50/40"
                   >
-                    <td className="px-5 py-3">
+                    <td className="px-5 py-3.5">
                       <Link
                         href={`/admin/parceiros/${p.id}`}
                         className="font-medium text-credios-charcoal transition-colors duration-150 hover:text-credios-blue"
@@ -115,22 +123,22 @@ export default async function AdminPartnersPage({
                         {p.legalName}
                       </Link>
                     </td>
-                    <td className="px-3 py-3 text-neutral-600 whitespace-nowrap">
+                    <td className="px-3 py-3.5 text-neutral-600 whitespace-nowrap">
                       {archetypeLabel(p.archetype)}
                     </td>
-                    <td className="px-3 py-3 text-neutral-600 whitespace-nowrap">
+                    <td className="px-3 py-3.5 text-neutral-600 whitespace-nowrap">
                       {formatDocument(p.document)}
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="px-3 py-3.5">
                       <PartnerStatusBadge status={p.status} />
                     </td>
-                    <td className="t-money px-3 py-3 text-right text-credios-charcoal">
+                    <td className="t-money px-3 py-3.5 text-right text-credios-charcoal">
                       {formatPercent(p.commissionRate)}
                     </td>
-                    <td className="t-money px-3 py-3 text-right text-credios-charcoal">
+                    <td className="t-money px-3 py-3.5 text-right text-credios-charcoal">
                       {p._count.leads}
                     </td>
-                    <td className="px-5 py-3 text-neutral-600 whitespace-nowrap">
+                    <td className="t-caption px-5 py-3.5 text-neutral-400 whitespace-nowrap">
                       {formatDate(p.createdAt)}
                     </td>
                   </tr>

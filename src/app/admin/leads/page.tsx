@@ -21,7 +21,10 @@ const PAGE_SIZE = 50;
 
 const SYNC_DOT: Record<string, { className: string; title: string }> = {
   SYNCED: { className: "bg-status-success", title: "Sincronizado com o CRM" },
-  PENDING: { className: "bg-status-warning", title: "Aguardando sync com o CRM" },
+  PENDING: {
+    className: "bg-status-warning animate-pulse-soft",
+    title: "Aguardando sync com o CRM",
+  },
   FAILED: { className: "bg-status-danger", title: "Falha de sync com o CRM" },
 };
 
@@ -97,13 +100,15 @@ export default async function AdminLeadsPage({
 
   return (
     <div>
-      <PageHeader
-        title="Leads"
-        description="Todas as indicações dos parceiros, com filtros e estado do sync."
-      />
+      <div className="animate-fade-up">
+        <PageHeader
+          title="Leads"
+          description="Todas as indicações dos parceiros, com filtros e estado do sync."
+        />
+      </div>
 
       <form
-        className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5"
+        className="animate-fade-up-1 mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5"
         action="/admin/leads"
       >
         <Input
@@ -144,34 +149,40 @@ export default async function AdminLeadsPage({
       </form>
 
       {leads.length === 0 ? (
-        <EmptyState
-          icon={Users}
-          title="Nenhum lead encontrado"
-          description="Ajuste os filtros ou aguarde novas indicações dos parceiros."
-        />
+        <div className="animate-fade-up-2">
+          <EmptyState
+            icon={Users}
+            title="Nenhum lead encontrado"
+            description="Ajuste os filtros ou aguarde novas indicações dos parceiros."
+          />
+        </div>
       ) : (
-        <>
+        <div className="animate-fade-up-2">
           <Card unpadded>
             <div className="overflow-x-auto">
               <table className="w-full min-w-3xl text-sm">
                 <thead>
-                  <tr className="border-b border-neutral-100 text-left text-neutral-500">
-                    <th className="px-5 py-3 font-medium">Cliente</th>
-                    <th className="px-3 py-3 font-medium">Parceiro</th>
-                    <th className="px-3 py-3 font-medium">Produto</th>
-                    <th className="px-3 py-3 font-medium text-right">Valor desejado</th>
-                    <th className="px-3 py-3 font-medium">Status</th>
-                    <th className="px-3 py-3 font-medium text-center">CRM</th>
-                    <th className="px-5 py-3 font-medium">Atualizado</th>
+                  <tr className="border-b border-black/5 text-left">
+                    <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Cliente</th>
+                    <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Parceiro</th>
+                    <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Produto</th>
+                    <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">
+                      Valor desejado
+                    </th>
+                    <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Status</th>
+                    <th className="t-eyebrow px-3 py-3.5 text-center text-neutral-400">
+                      CRM
+                    </th>
+                    <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Atualizado</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-black/5">
                   {leads.map((lead) => (
                     <tr
                       key={lead.id}
-                      className="border-b border-neutral-100 last:border-b-0 transition-colors duration-150 hover:bg-credios-blue-50/40"
+                      className="transition-colors duration-150 hover:bg-credios-blue-50/40"
                     >
-                      <td className="px-5 py-3">
+                      <td className="px-5 py-3.5">
                         <Link
                           href={`/admin/leads/${lead.id}`}
                           className="font-medium text-credios-charcoal transition-colors duration-150 hover:text-credios-blue"
@@ -179,7 +190,7 @@ export default async function AdminLeadsPage({
                           {lead.name}
                         </Link>
                       </td>
-                      <td className="px-3 py-3 text-neutral-600">
+                      <td className="px-3 py-3.5 text-neutral-600">
                         <Link
                           href={`/admin/parceiros/${lead.partner.id}`}
                           className="transition-colors duration-150 hover:text-credios-blue"
@@ -187,19 +198,19 @@ export default async function AdminLeadsPage({
                           {lead.partner.legalName}
                         </Link>
                       </td>
-                      <td className="px-3 py-3 text-neutral-600 whitespace-nowrap">
+                      <td className="px-3 py-3.5 text-neutral-600 whitespace-nowrap">
                         {productLabel(lead.product)}
                       </td>
-                      <td className="t-money px-3 py-3 text-right whitespace-nowrap">
+                      <td className="t-money px-3 py-3.5 text-right whitespace-nowrap">
                         {formatBRL(lead.requestedAmount)}
                       </td>
-                      <td className="px-3 py-3">
+                      <td className="px-3 py-3.5">
                         <LeadStatusBadge status={lead.status} />
                       </td>
-                      <td className="px-3 py-3 text-center">
+                      <td className="px-3 py-3.5 text-center">
                         <SyncDot status={lead.crmSyncStatus} />
                       </td>
-                      <td className="px-5 py-3 text-neutral-500 whitespace-nowrap">
+                      <td className="t-caption px-5 py-3.5 text-neutral-400 whitespace-nowrap">
                         {timeAgo(lead.updatedAt)}
                       </td>
                     </tr>
@@ -227,7 +238,7 @@ export default async function AdminLeadsPage({
               )}
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

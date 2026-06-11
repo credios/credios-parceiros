@@ -61,13 +61,15 @@ export default async function ClientesPage({
 
   return (
     <>
-      <PageHeader
-        title="Meus clientes"
-        description="Todas as suas indicações e o andamento de cada operação."
-        action={<ButtonLink href="/app/clientes/novo">Indicar cliente</ButtonLink>}
-      />
+      <div className="animate-fade-up">
+        <PageHeader
+          title="Meus clientes"
+          description="Todas as suas indicações e o andamento de cada operação."
+          action={<ButtonLink href="/app/clientes/novo">Indicar cliente</ButtonLink>}
+        />
+      </div>
 
-      <form method="GET" className="flex flex-col sm:flex-row gap-3 mb-6">
+      <form method="GET" className="animate-fade-up-1 flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
           <Search
             size={16}
@@ -102,44 +104,46 @@ export default async function ClientesPage({
       </form>
 
       {leads.length === 0 ? (
-        <EmptyState
-          icon={Users}
-          title={hasFilters ? "Nenhum cliente encontrado" : "Nenhum cliente ainda"}
-          description={
-            hasFilters
-              ? "Nenhuma indicação corresponde aos filtros. Limpe a busca e tente de novo."
-              : "Você ainda não indicou nenhum cliente. Indicar leva menos de 2 minutos."
-          }
-          action={
-            hasFilters ? (
-              <ButtonLink href="/app/clientes" variant="outline">
-                Limpar filtros
-              </ButtonLink>
-            ) : (
-              <ButtonLink href="/app/clientes/novo">Indicar cliente</ButtonLink>
-            )
-          }
-        />
+        <div className="animate-fade-up-2">
+          <EmptyState
+            icon={Users}
+            title={hasFilters ? "Nenhum cliente encontrado" : "Nenhum cliente ainda"}
+            description={
+              hasFilters
+                ? "Nenhuma indicação corresponde aos filtros. Limpe a busca e tente de novo."
+                : "Você ainda não indicou nenhum cliente. Indicar leva menos de 2 minutos."
+            }
+            action={
+              hasFilters ? (
+                <ButtonLink href="/app/clientes" variant="outline">
+                  Limpar filtros
+                </ButtonLink>
+              ) : (
+                <ButtonLink href="/app/clientes/novo">Indicar cliente</ButtonLink>
+              )
+            }
+          />
+        </div>
       ) : (
         <>
           {/* Tabela (desktop) */}
-          <Card unpadded className="hidden md:block overflow-x-auto">
+          <Card unpadded className="animate-fade-up-2 hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-black/5 text-left">
-                  <th className="t-caption text-neutral-500 font-medium px-5 py-3">
+                  <th className="t-eyebrow text-neutral-400 px-5 py-3">
                     Cliente
                   </th>
-                  <th className="t-caption text-neutral-500 font-medium px-5 py-3">
+                  <th className="t-eyebrow text-neutral-400 px-5 py-3">
                     Produto
                   </th>
-                  <th className="t-caption text-neutral-500 font-medium px-5 py-3">
+                  <th className="t-eyebrow text-neutral-400 px-5 py-3 text-right">
                     Valor desejado
                   </th>
-                  <th className="t-caption text-neutral-500 font-medium px-5 py-3">
+                  <th className="t-eyebrow text-neutral-400 px-5 py-3">
                     Status
                   </th>
-                  <th className="t-caption text-neutral-500 font-medium px-5 py-3">
+                  <th className="t-eyebrow text-neutral-400 px-5 py-3">
                     Última movimentação
                   </th>
                   <th className="px-5 py-3">
@@ -151,9 +155,9 @@ export default async function ClientesPage({
                 {leads.map((lead) => (
                   <tr
                     key={lead.id}
-                    className="transition-colors duration-150 hover:bg-neutral-50"
+                    className="transition-colors duration-150 hover:bg-credios-blue-50/40"
                   >
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-4">
                       <Link
                         href={`/app/clientes/${lead.id}`}
                         className="font-medium text-credios-charcoal hover:text-credios-blue transition-colors duration-150"
@@ -161,19 +165,19 @@ export default async function ClientesPage({
                         {lead.name}
                       </Link>
                     </td>
-                    <td className="px-5 py-3.5 text-neutral-500">
+                    <td className="px-5 py-4 text-neutral-500">
                       {productLabel(lead.product)}
                     </td>
-                    <td className="px-5 py-3.5 t-money font-semibold text-credios-charcoal">
+                    <td className="px-5 py-4 t-money text-credios-charcoal text-right">
                       {formatBRL(lead.requestedAmount)}
                     </td>
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-4">
                       <LeadStatusBadge status={lead.status} />
                     </td>
-                    <td className="px-5 py-3.5 text-neutral-400">
+                    <td className="px-5 py-4 text-neutral-400">
                       {timeAgo(lead.updatedAt)}
                     </td>
-                    <td className="px-5 py-3.5 text-right">
+                    <td className="px-5 py-4 text-right">
                       <Link
                         href={`/app/clientes/${lead.id}`}
                         aria-label={`Ver ${lead.name}`}
@@ -189,7 +193,7 @@ export default async function ClientesPage({
           </Card>
 
           {/* Cards (mobile) */}
-          <ul className="md:hidden flex flex-col gap-3">
+          <ul className="animate-fade-up-2 md:hidden flex flex-col gap-3">
             {leads.map((lead) => (
               <li key={lead.id}>
                 <Link href={`/app/clientes/${lead.id}`} className="block">

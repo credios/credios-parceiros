@@ -181,6 +181,50 @@ body {
   }
 }
 
+/* Entrada suave de conteúdo de página (polimento) */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.5s var(--ease-out-expo) both;
+}
+.animate-fade-up-1 {
+  animation: fade-up 0.5s var(--ease-out-expo) 80ms both;
+}
+.animate-fade-up-2 {
+  animation: fade-up 0.5s var(--ease-out-expo) 160ms both;
+}
+
+/* Anel pulsante sutil — etapa atual da timeline e indicadores "ao vivo" */
+@keyframes pulse-soft {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-credios-blue) 35%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+.animate-pulse-soft {
+  animation: pulse-soft 2.4s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-fade-up-1,
+  .animate-fade-up-2,
+  .animate-pulse-soft {
+    animation: none;
+  }
+}
+
 /* Skeleton de loading */
 .skeleton {
   border-radius: var(--radius-sm);

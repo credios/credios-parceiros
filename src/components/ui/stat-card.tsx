@@ -23,7 +23,8 @@ export function StatCard({
 }) {
   if (tone === "dark") {
     return (
-      <Card tone="dark" className={className}>
+      <Card tone="dark" className={cn("relative overflow-hidden", className)}>
+        <span aria-hidden className="absolute inset-x-5 top-0 h-px bg-accent-line-gold" />
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="t-eyebrow text-credios-gold-300">{label}</p>

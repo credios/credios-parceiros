@@ -86,7 +86,7 @@ export function MobileNav() {
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "relative flex min-h-11 flex-col items-center justify-center gap-1 py-2 transition-colors duration-150",
-                    active ? "text-white" : "text-white/50 hover:text-white/80"
+                    active ? "text-credios-blue-300" : "text-white/50 hover:text-white/80"
                   )}
                 >
                   {active && (
@@ -95,7 +95,7 @@ export function MobileNav() {
                       className="absolute top-0 h-0.5 w-8 rounded-full bg-credios-gold"
                     />
                   )}
-                  <Icon size={20} aria-hidden />
+                  <Icon size={20} strokeWidth={active ? 2.5 : 2} aria-hidden />
                   <span className="text-xs leading-none">{label}</span>
                 </Link>
               </li>

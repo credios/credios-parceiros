@@ -60,7 +60,7 @@ export default async function ClienteDetalhePage({
 
       {/* Momento de ouro: crédito liberado */}
       {lead.status === "LIBERADO" && (
-        <Card tone="dark" className="border-credios-gold/40 shadow-glow-gold mb-6">
+        <Card tone="dark" className="border-credios-gold/40 shadow-glow-gold mb-6 animate-fade-up">
           <p className="t-eyebrow text-credios-gold-300">Crédito liberado 🎉</p>
           <p className="t-money text-4xl sm:text-5xl text-white mt-2">
             {formatBRL(lead.disbursedAmount)}
@@ -84,7 +84,7 @@ export default async function ClienteDetalhePage({
       )}
 
       {/* Header do cliente */}
-      <div className="mb-8">
+      <div className="mb-8 animate-fade-up">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="t-display-md text-credios-charcoal">{lead.name}</h1>
           <LeadStatusBadge status={lead.status} />
@@ -116,13 +116,13 @@ export default async function ClienteDetalhePage({
       </div>
 
       {/* Timeline — elemento-assinatura */}
-      <Card tone="white" className="mb-6">
+      <Card tone="white" className="mb-6 animate-fade-up-1">
         <h2 className="t-eyebrow text-neutral-500 mb-6">Andamento da operação</h2>
         <Timeline lead={lead} events={lead.statusHistory} />
       </Card>
 
       {/* Histórico real de movimentações */}
-      <Card>
+      <Card className="animate-fade-up-2">
         <h2 className="t-eyebrow text-neutral-500 mb-4">Histórico</h2>
         <ul className="divide-y divide-black/5">
           {[...lead.statusHistory].reverse().map((event) => (

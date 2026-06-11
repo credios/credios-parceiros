@@ -45,49 +45,53 @@ export default async function AdminContractsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Contratos"
-        description="Templates do contrato de parceria e os contratos emitidos para assinatura."
-        action={
-          <ButtonLink href="/admin/contratos/novo-template" variant="outline">
-            <Plus size={16} aria-hidden />
-            Nova versão do template
-          </ButtonLink>
-        }
-      />
+      <div className="animate-fade-up">
+        <PageHeader
+          title="Contratos"
+          description="Templates do contrato de parceria e os contratos emitidos para assinatura."
+          action={
+            <ButtonLink href="/admin/contratos/novo-template" variant="outline">
+              <Plus size={16} aria-hidden />
+              Nova versão do template
+            </ButtonLink>
+          }
+        />
+      </div>
 
-      <h2 className="t-heading mb-4 text-credios-charcoal">Templates</h2>
+      <h2 className="t-heading animate-fade-up-1 mb-4 text-credios-charcoal">Templates</h2>
       {templates.length === 0 ? (
-        <p className="t-body text-neutral-500">
+        <p className="t-body animate-fade-up-1 text-neutral-500">
           Nenhum template cadastrado — crie a primeira versão para emitir contratos.
         </p>
       ) : (
-        <Card unpadded>
+        <Card unpadded className="animate-fade-up-1">
           <div className="overflow-x-auto">
             <table className="w-full min-w-xl text-sm">
               <thead>
-                <tr className="border-b border-neutral-100 text-left text-neutral-500">
-                  <th className="px-5 py-3 font-medium">Versão</th>
-                  <th className="px-3 py-3 font-medium">Nome</th>
-                  <th className="px-3 py-3 font-medium">Situação</th>
-                  <th className="px-3 py-3 font-medium text-right">Contratos</th>
-                  <th className="px-5 py-3 font-medium">Criado em</th>
+                <tr className="border-b border-black/5 text-left">
+                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Versão</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Nome</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Situação</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">
+                    Contratos
+                  </th>
+                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Criado em</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-black/5">
                 {templates.map((t) => (
-                  <tr key={t.id} className="border-b border-neutral-100 last:border-b-0">
-                    <td className="t-money px-5 py-3">v{t.version}</td>
-                    <td className="px-3 py-3 font-medium">{t.name}</td>
-                    <td className="px-3 py-3">
+                  <tr key={t.id}>
+                    <td className="t-money px-5 py-3.5">v{t.version}</td>
+                    <td className="px-3 py-3.5 font-medium">{t.name}</td>
+                    <td className="px-3 py-3.5">
                       {t.active ? (
                         <Badge tone="success">Ativo</Badge>
                       ) : (
                         <Badge tone="neutral">Inativo</Badge>
                       )}
                     </td>
-                    <td className="t-money px-3 py-3 text-right">{t._count.contracts}</td>
-                    <td className="px-5 py-3 text-neutral-500 whitespace-nowrap">
+                    <td className="t-money px-3 py-3.5 text-right">{t._count.contracts}</td>
+                    <td className="t-caption px-5 py-3.5 text-neutral-400 whitespace-nowrap">
                       {formatDate(t.createdAt)}
                     </td>
                   </tr>
@@ -98,35 +102,36 @@ export default async function AdminContractsPage() {
         </Card>
       )}
 
-      <h2 className="t-heading mt-10 mb-4 text-credios-charcoal">Contratos emitidos</h2>
+      <h2 className="t-heading animate-fade-up-2 mt-10 mb-4 text-credios-charcoal">
+        Contratos emitidos
+      </h2>
       {contracts.length === 0 ? (
-        <EmptyState
-          icon={FileSignature}
-          title="Nenhum contrato emitido"
-          description="Os contratos são gerados automaticamente quando o parceiro cria a senha de acesso."
-        />
+        <div className="animate-fade-up-2">
+          <EmptyState
+            icon={FileSignature}
+            title="Nenhum contrato emitido"
+            description="Os contratos são gerados automaticamente quando o parceiro cria a senha de acesso."
+          />
+        </div>
       ) : (
-        <Card unpadded>
+        <Card unpadded className="animate-fade-up-2">
           <div className="overflow-x-auto">
             <table className="w-full min-w-3xl text-sm">
               <thead>
-                <tr className="border-b border-neutral-100 text-left text-neutral-500">
-                  <th className="px-5 py-3 font-medium">Parceiro</th>
-                  <th className="px-3 py-3 font-medium">Status</th>
-                  <th className="px-3 py-3 font-medium">Enviado</th>
-                  <th className="px-3 py-3 font-medium">Visualizado</th>
-                  <th className="px-3 py-3 font-medium">Assinado</th>
-                  <th className="px-3 py-3 font-medium">Verificação</th>
-                  <th className="px-5 py-3 font-medium">Ações</th>
+                <tr className="border-b border-black/5 text-left">
+                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Parceiro</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Status</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Enviado</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Visualizado</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Assinado</th>
+                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Verificação</th>
+                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Ações</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-black/5">
                 {contracts.map((c) => (
-                  <tr
-                    key={c.id}
-                    className="border-b border-neutral-100 align-middle last:border-b-0"
-                  >
-                    <td className="px-5 py-3">
+                  <tr key={c.id} className="align-middle">
+                    <td className="px-5 py-3.5">
                       <Link
                         href={`/admin/parceiros/${c.partner.id}`}
                         className="font-medium text-credios-charcoal transition-colors duration-150 hover:text-credios-blue"
@@ -134,22 +139,22 @@ export default async function AdminContractsPage() {
                         {c.partner.legalName}
                       </Link>
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="px-3 py-3.5">
                       <ContractStatusBadge status={c.status} />
                     </td>
-                    <td className="px-3 py-3 text-neutral-500 whitespace-nowrap">
+                    <td className="t-caption px-3 py-3.5 text-neutral-400 whitespace-nowrap">
                       {formatDateTime(c.sentAt)}
                     </td>
-                    <td className="px-3 py-3 text-neutral-500 whitespace-nowrap">
+                    <td className="t-caption px-3 py-3.5 text-neutral-400 whitespace-nowrap">
                       {formatDateTime(c.viewedAt)}
                     </td>
-                    <td className="px-3 py-3 text-neutral-500 whitespace-nowrap">
+                    <td className="t-caption px-3 py-3.5 text-neutral-400 whitespace-nowrap">
                       {formatDateTime(c.signedAt)}
                     </td>
-                    <td className="px-3 py-3 font-mono text-xs whitespace-nowrap">
+                    <td className="px-3 py-3.5 font-mono text-xs whitespace-nowrap">
                       {c.verifyCode}
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-5 py-3.5">
                       <div className="flex flex-wrap items-center gap-2">
                         {c.status !== "SIGNED" && c.status !== "CANCELLED" && (
                           <ResendContractButton contractId={c.id} />

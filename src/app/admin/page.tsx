@@ -109,12 +109,14 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Visão geral"
-        description="O pulso da operação de parcerias em uma tela."
-      />
+      <div className="animate-fade-up">
+        <PageHeader
+          title="Visão geral"
+          description="O pulso da operação de parcerias em uma tela."
+        />
+      </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="animate-fade-up-1 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Leads hoje" value={String(leadsToday)} icon={CalendarDays} />
         <StatCard
           label="Leads na semana"
@@ -135,7 +137,7 @@ export default async function AdminDashboardPage() {
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-5">
+      <div className="animate-fade-up-2 mt-6 grid grid-cols-1 gap-6 xl:grid-cols-5">
         {/* Funil por status */}
         <Card className="xl:col-span-3">
           <h2 className="t-heading text-credios-charcoal">Funil por status</h2>
@@ -150,7 +152,7 @@ export default async function AdminDashboardPage() {
                   </span>
                   <span className="relative h-2 flex-1 rounded-full bg-neutral-100">
                     <span
-                      className="absolute inset-y-0 left-0 rounded-full bg-credios-blue"
+                      className="absolute inset-y-0 left-0 rounded-full bg-credios-blue transition-[width] duration-500 ease-out"
                       style={{ width: `${pct}%` }}
                       aria-hidden
                     />
@@ -194,7 +196,7 @@ export default async function AdminDashboardPage() {
                   <li key={p.id}>
                     <Link
                       href={`/admin/parceiros/${p.id}`}
-                      className="flex min-h-11 items-center justify-between gap-3 py-2 transition-colors duration-150 hover:text-credios-blue"
+                      className="-mx-2 flex min-h-11 items-center justify-between gap-3 rounded-md px-2 py-2 transition-colors duration-150 hover:bg-neutral-50 hover:text-credios-blue"
                     >
                       <span className="truncate text-sm font-medium">{p.legalName}</span>
                       <span className="t-caption shrink-0 text-neutral-500">

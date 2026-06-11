@@ -36,14 +36,18 @@ export default async function PerfilPage() {
 
   return (
     <div className="max-w-2xl">
-      <PageHeader
-        title="Perfil"
-        description="Seus dados cadastrais e de recebimento de comissões."
-      />
+      <div className="animate-fade-up">
+        <PageHeader
+          title="Perfil"
+          description="Seus dados cadastrais e de recebimento de comissões."
+        />
+      </div>
 
-      <div className="flex flex-col gap-6">
+      <div className="animate-fade-up-1 flex flex-col gap-8">
         <Card tone="white">
-          <h2 className="t-eyebrow text-neutral-500 mb-5">Dados cadastrais</h2>
+          <h2 className="t-eyebrow text-credios-blue-700 pb-3 border-b border-black/5 mb-5">
+            Dados cadastrais
+          </h2>
           <dl className="flex flex-col gap-4 mb-5">
             <div>
               <dt className="t-caption text-neutral-400">

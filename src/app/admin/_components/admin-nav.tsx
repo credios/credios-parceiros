@@ -56,7 +56,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                 aria-hidden
               />
             )}
-            <Icon size={18} aria-hidden />
+            <Icon size={18} className="shrink-0" aria-hidden />
             {label}
           </Link>
         );
@@ -87,7 +87,7 @@ function SignOutButton({ signOutAction }: { signOutAction: () => Promise<void> }
         type="submit"
         className="flex min-h-11 w-full items-center gap-2 rounded-md px-3 text-sm text-white/70 transition-colors duration-150 ease-out hover:bg-white/5 hover:text-white cursor-pointer"
       >
-        <LogOut size={16} aria-hidden />
+        <LogOut size={16} className="shrink-0" aria-hidden />
         Sair
       </button>
     </form>

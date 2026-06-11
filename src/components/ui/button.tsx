@@ -24,7 +24,7 @@ const sizeClasses: Record<Size, string> = {
 };
 
 const baseClasses =
-  "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-[filter,background-color,color,box-shadow] duration-150 ease-out disabled:opacity-50 disabled:pointer-events-none cursor-pointer";
+  "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-[filter,background-color,color,box-shadow,transform] duration-150 ease-out active:translate-y-px disabled:opacity-50 disabled:pointer-events-none cursor-pointer";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;

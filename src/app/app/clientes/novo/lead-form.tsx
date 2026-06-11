@@ -87,7 +87,7 @@ export function LeadForm() {
   const errors = state?.fieldErrors ?? {};
 
   return (
-    <form action={formAction} className="flex flex-col gap-6 max-w-2xl">
+    <form action={formAction} className="flex flex-col gap-8 max-w-2xl">
       {state?.error && (
         <div
           role="alert"
@@ -99,8 +99,10 @@ export function LeadForm() {
       )}
 
       <Card tone="white">
-        <h2 className="t-eyebrow text-neutral-500 mb-5">Dados do cliente</h2>
-        <div className="flex flex-col gap-4">
+        <h2 className="t-eyebrow text-credios-blue-700 pb-3 border-b border-black/5 mb-5">
+          Dados do cliente
+        </h2>
+        <div className="flex flex-col gap-5">
           <Field label="Nome completo" htmlFor="name" required error={errors.name}>
             <Input
               id="name"
@@ -111,7 +113,7 @@ export function LeadForm() {
               aria-invalid={errors.name ? true : undefined}
             />
           </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             <Field label="CPF ou CNPJ" htmlFor="document" required error={errors.document}>
               <Input
                 id="document"
@@ -149,7 +151,7 @@ export function LeadForm() {
               aria-invalid={errors.email ? true : undefined}
             />
           </Field>
-          <div className="grid gap-4 grid-cols-3">
+          <div className="grid gap-5 grid-cols-3">
             <Field label="Cidade" htmlFor="city" className="col-span-2" error={errors.city}>
               <Input id="city" name="city" autoComplete="off" placeholder="Cidade" />
             </Field>
@@ -168,8 +170,10 @@ export function LeadForm() {
       </Card>
 
       <Card tone="white">
-        <h2 className="t-eyebrow text-neutral-500 mb-5">Operação</h2>
-        <div className="flex flex-col gap-4">
+        <h2 className="t-eyebrow text-credios-blue-700 pb-3 border-b border-black/5 mb-5">
+          Operação
+        </h2>
+        <div className="flex flex-col gap-5">
           <Field label="Produto" htmlFor="product" error={errors.product}>
             <Select id="product" name="product" defaultValue="CGI">
               {PRODUCTS.map((p) => (
@@ -179,7 +183,7 @@ export function LeadForm() {
               ))}
             </Select>
           </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             <Field
               label="Valor desejado"
               htmlFor="requestedAmount"

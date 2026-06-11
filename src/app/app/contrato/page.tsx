@@ -23,13 +23,15 @@ export default async function ContratoPage() {
 
   return (
     <div className="max-w-2xl">
-      <PageHeader
-        title="Contrato"
-        description="Seu contrato de parceria com a Credios."
-      />
+      <div className="animate-fade-up">
+        <PageHeader
+          title="Contrato"
+          description="Seu contrato de parceria com a Credios."
+        />
+      </div>
 
       {signed ? (
-        <Card tone="white">
+        <Card tone="white" className="animate-fade-up-1">
           <div className="flex items-start gap-4">
             <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-status-success-bg">
               <BadgeCheck size={22} className="text-status-success" aria-hidden />
@@ -70,7 +72,7 @@ export default async function ContratoPage() {
           </a>
         </Card>
       ) : (
-        <Card tone="white">
+        <Card tone="white" className="animate-fade-up-1">
           <div className="flex items-start gap-4">
             <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-credios-blue-50">
               <FileSignature size={22} className="text-credios-blue" aria-hidden />
