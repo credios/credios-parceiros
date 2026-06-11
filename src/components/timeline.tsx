@@ -19,7 +19,10 @@ function dateOf(events: LeadStatusEvent[], step: LeadStatus): Date | null {
  * negativos viram um nó terminal respeitoso, sem expor motivos internos.
  */
 export function Timeline({ lead, events }: { lead: Lead; events: LeadStatusEvent[] }) {
-  const negative = lead.status === "RECUSADO" || lead.status === "CANCELADO";
+  const negative =
+    lead.status === "RECUSADO" ||
+    lead.status === "CANCELADO" ||
+    lead.status === "EXCLUIDO";
   const released = lead.status === "LIBERADO";
 
   // Última etapa do funil efetivamente alcançada (para encerramentos negativos).

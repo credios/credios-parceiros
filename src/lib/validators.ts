@@ -132,6 +132,7 @@ export const updateLeadStatusSchema = z
       "LIBERADO",
       "RECUSADO",
       "CANCELADO",
+      "EXCLUIDO",
     ]),
     note: z.string().max(1000).optional(),
     approvedAmount: moneySchema.optional(),

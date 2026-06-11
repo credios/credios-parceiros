@@ -21,10 +21,12 @@ const DEDUPE_WINDOW_MS = 7 * 24 * 60 * 60_000;
 
 const bodySchema = z
   .object({
-    event: z.literal("lead.status_changed"),
+    // lead.deleted: lead apagado no CRM — o portal marca como EXCLUIDO
+    // (mesmo caminho do pseudo-status "excluido" no mapeamento).
+    event: z.enum(["lead.status_changed", "lead.deleted"]),
     crmLeadId: z.string().min(1).optional(),
     portalLeadId: z.string().min(1).optional(),
-    status: z.string().min(1),
+    status: z.string().min(1).optional(),
     valorLiberadoCentavos: z.number().int().nonnegative().optional(),
     bancoAprovador: z.string().optional(),
     dataFechamento: z.string().optional(),
@@ -114,12 +116,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "lead não encontrado" }, { status: 404 });
     }
 
+    // lead.deleted equivale ao pseudo-status "excluido"; em
+    // lead.status_changed o status é obrigatório.
+    const statusKey = body.event === "lead.deleted" ? "excluido" : body.status;
+    if (!statusKey) {
+      await logInbound({ payload: body, success: false, error: "status ausente" });
+      return NextResponse.json({ error: "status ausente" }, { status: 400 });
+    }
+
     // Status custom do CRM não mapeado → ignorado sem erro (por design).
-    const mapped = mapCrmStatus(body.status);
+    const mapped = mapCrmStatus(statusKey);
     if (!mapped) {
       await logInbound({
         payload: body,
-        response: { ignored: true, reason: `status do CRM não mapeado: ${body.status}` },
+        response: { ignored: true, reason: `status do CRM não mapeado: ${statusKey}` },
         success: true,
       });
       return NextResponse.json({ ok: true, ignored: true });
@@ -128,7 +138,7 @@ export async function POST(req: Request) {
     // Mesmo status e sem dados novos de fechamento → economiza a transação
     // (applyStatusChange já seria no-op). "fechado" sempre passa porque
     // pode trazer valorLiberadoCentavos/dataFechamento atualizados.
-    const isClosing = body.status === "fechado";
+    const isClosing = statusKey === "fechado";
     if (mapped === lead.status && !isClosing) {
       await logInbound({
         payload: body,

@@ -113,6 +113,15 @@ export const STATUS_META: Record<LeadStatus, StatusMeta> = {
     terminal: true,
     notifyPartner: false,
   },
+  EXCLUIDO: {
+    order: 8,
+    label: "Excluída",
+    description:
+      "Esta indicação foi removida do funil pela Credios — em geral um registro de teste, duplicado ou inválido. O mesmo cliente pode ser indicado novamente.",
+    tone: "neutral",
+    terminal: true,
+    notifyPartner: false,
+  },
 };
 
 /** Etapas do funil feliz, em ordem — usadas na timeline. */
@@ -127,7 +136,12 @@ export const FUNNEL_STEPS: LeadStatus[] = [
   "LIBERADO",
 ];
 
-export const TERMINAL_STATUSES: LeadStatus[] = ["LIBERADO", "RECUSADO", "CANCELADO"];
+export const TERMINAL_STATUSES: LeadStatus[] = [
+  "LIBERADO",
+  "RECUSADO",
+  "CANCELADO",
+  "EXCLUIDO",
+];
 
 export const ACTIVE_STATUSES: LeadStatus[] = FUNNEL_STEPS.filter(
   (s) => !TERMINAL_STATUSES.includes(s)

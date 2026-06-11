@@ -108,6 +108,7 @@ parceiro) — daí o mapeamento N:1.
 | `fechado` | `LIBERADO` | crédito liberado — dispara a comissão no portal |
 | `desqualificado` | `RECUSADO` | operação não aprovada/inviável |
 | `perdido` | `CANCELADO` | cliente desistiu / esfriou |
+| `excluido` (pseudo-status) | `EXCLUIDO` | lead **apagado** no CRM (teste/duplicado/inválido) — o DELETE do CRM notifica o portal (evento `lead.deleted` ou status `excluido`), que preserva o registro fora do funil |
 
 - **`AVALIACAO_IMOVEL`, `APROVADO` e `CONTRATACAO` não têm equivalente no
   CRM.** São refinamentos que o admin do portal pode setar manualmente sem

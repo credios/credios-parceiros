@@ -27,6 +27,9 @@ export const CRM_TO_PORTAL_STATUS: Record<string, LeadStatus> = {
   fechado: "LIBERADO",
   desqualificado: "RECUSADO",
   perdido: "CANCELADO",
+  // Pseudo-status: enviado pelo CRM quando o lead é APAGADO lá (teste,
+  // duplicado, inválido). O portal preserva o registro fora do funil.
+  excluido: "EXCLUIDO",
 };
 
 /**

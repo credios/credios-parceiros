@@ -37,6 +37,7 @@ enum LeadStatus {
   LIBERADO // crédito liberado — gera comissão
   RECUSADO // operação não aprovada
   CANCELADO // cliente desistiu / duplicado / inválido
+  EXCLUIDO // removido do funil (excluído no CRM — teste/duplicado/inválido)
 }
 
 enum CommissionStatus {

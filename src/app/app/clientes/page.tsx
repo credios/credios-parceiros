@@ -15,7 +15,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 export const metadata = { title: "Meus clientes" };
 
-const STATUS_OPTIONS: LeadStatus[] = [...FUNNEL_STEPS, "RECUSADO", "CANCELADO"];
+const STATUS_OPTIONS: LeadStatus[] = [...FUNNEL_STEPS, "RECUSADO", "CANCELADO", "EXCLUIDO"];
 
 function productLabel(value: string): string {
   return PRODUCTS.find((p) => p.value === value)?.label ?? value;

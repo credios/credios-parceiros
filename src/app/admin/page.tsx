@@ -165,7 +165,7 @@ export default async function AdminDashboardPage() {
             })}
           </ul>
           <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1 border-t border-neutral-100 pt-4">
-            {(["RECUSADO", "CANCELADO"] as const).map((status) => (
+            {(["RECUSADO", "CANCELADO", "EXCLUIDO"] as const).map((status) => (
               <p key={status} className="t-caption text-neutral-500">
                 {STATUS_META[status].label}:{" "}
                 <span className="t-money text-neutral-600">
