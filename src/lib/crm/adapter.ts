@@ -39,11 +39,11 @@ function decimalToReais(value: Lead["requestedAmount"]): number | undefined {
  * - NÃO enviar `lead_id`: no CRM esse campo é a chave de ENRIQUECIMENTO
  *   (uuid de lead existente, fluxo 2 etapas do simulador). O id do portal
  *   vai como `portal_lead_id` (campo passthrough, preservado em raw_payload).
- * - O schema do CRM NÃO tem campo de observações/notas no lead. Decisão
- *   documentada em docs/INTEGRACAO-CRM.md: a identificação do parceiro +
- *   observações vão concatenadas em `objetivo_credito` (campo de texto
- *   visível no detalhe do lead) e também em campos passthrough estruturados
- *   (`observacoes_parceiro`, `portal_partner_*`) preservados em raw_payload.
+ * - Parceria é campo de primeira classe no CRM (migration 0029):
+ *   `parceiro_nome`, `parceiro_portal_id` e `observacoes_parceiro` aparecem
+ *   no card "Parceria" do detalhe do lead. `objetivo_credito` fica livre
+ *   para o uso normal. Os campos portal_* seguem como passthrough
+ *   (preservados em raw_payload, auditáveis).
  * - Tracking: source "Portal de Parceiros" / channel "Referral" / paid false.
  *   Pré-requisito no CRM: source cadastrado na taxonomia + tracking_sources
  *   (ver docs/INTEGRACAO-CRM.md) — sem isso o lead cai na quarantine
@@ -53,13 +53,6 @@ export function buildCrmLeadPayload(
   lead: Lead,
   partner: Partner
 ): Record<string, unknown> {
-  const partnerTag = `Indicação via Portal de Parceiros — Parceiro: ${partner.legalName} (portal ${partner.id}${
-    partner.crmPartnerRef ? `, CRM ref ${partner.crmPartnerRef}` : ""
-  })`;
-  const observacoes = lead.notes?.trim()
-    ? `Observações do parceiro: ${lead.notes.trim()}`
-    : "";
-
   const uf =
     lead.state && /^[A-Za-z]{2}$/.test(lead.state.trim())
       ? lead.state.trim().toUpperCase()
@@ -89,7 +82,11 @@ export function buildCrmLeadPayload(
     produto: lead.product,
     valor_credito: decimalToReais(lead.requestedAmount),
     valor_imovel: decimalToReais(lead.propertyValue),
-    objetivo_credito: [partnerTag, observacoes].filter(Boolean).join(". "),
+
+    // ── Parceria (campos de primeira classe no CRM, migration 0029) ──────
+    parceiro_nome: partner.legalName,
+    parceiro_portal_id: partner.id,
+    ...(lead.notes?.trim() ? { observacoes_parceiro: lead.notes.trim() } : {}),
 
     // ── Tracking canônico (taxonomia channel > source > paid do CRM) ─────
     channel: "Referral",
@@ -102,7 +99,6 @@ export function buildCrmLeadPayload(
     portal_partner_id: partner.id,
     portal_partner_nome: partner.legalName,
     ...(partner.crmPartnerRef ? { portal_partner_crm_ref: partner.crmPartnerRef } : {}),
-    ...(lead.notes ? { observacoes_parceiro: lead.notes } : {}),
     ...(lead.propertyCity ? { portal_property_city: lead.propertyCity } : {}),
     portal_client_document: digits,
   };

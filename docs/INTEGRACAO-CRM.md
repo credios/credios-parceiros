@@ -76,17 +76,16 @@ CRM converte para centavos no insert (`reaisParaCentavos`).
 | `produto` | `Lead.product` | `CGI` \| `CONDOMINIO` \| `FINANCIAMENTO` |
 | `valor_credito` | `Lead.requestedAmount` | **em reais** |
 | `valor_imovel` | `Lead.propertyValue` | **em reais** |
-| `objetivo_credito` | identificação do parceiro + `Lead.notes` | ver decisão abaixo |
+| `parceiro_nome` / `parceiro_portal_id` / `observacoes_parceiro` | `Partner.legalName` / `Partner.id` / `Lead.notes` | campos de primeira classe no CRM (migration 0029) — alimentam o card "Parceria" no detalhe do lead |
 | `channel` / `source` / `paid` / `origem` | fixos | `"Referral"` / `"Portal de Parceiros"` / `false` / `"Portal de Parceiros"` |
 | `portal_lead_id`, `portal_partner_id`, `portal_partner_nome`, `portal_partner_crm_ref`, `observacoes_parceiro`, `portal_property_city`, `portal_client_document` | passthrough | o schema do CRM tem `.passthrough()` — esses campos extras são preservados em `leads.raw_payload` |
 
-> **Decisão — observações do parceiro:** o `webhookLeadPayloadSchema` (e a
-> tabela `leads` do CRM) **não tem campo de observações/notas**. A
-> identificação do parceiro + observações vão concatenadas em
-> `objetivo_credito` (campo de texto visível no detalhe do lead no CRM), no
-> formato `"Indicação via Portal de Parceiros — Parceiro: {nome} (portal
-> {id}, CRM ref {crmPartnerRef}). Observações do parceiro: {notes}"`, e
-> também em campos passthrough estruturados (auditáveis via `raw_payload`).
+> **Parceria como campo de primeira classe (migration 0029 do CRM):** a
+> tabela `leads` do CRM tem `parceiro_nome`, `parceiro_portal_id` e
+> `observacoes_parceiro`, exibidos no card "Parceria" do detalhe do lead
+> (com link para o cadastro do parceiro no portal). `objetivo_credito`
+> fica livre para o uso normal do funil. Os campos `portal_*` continuam
+> indo como passthrough (preservados em `raw_payload`, auditáveis).
 
 > **Atenção — `lead_id` é proibido no outbound:** no webhook do CRM esse
 > campo é a chave do fluxo de **enriquecimento** do simulador do site
