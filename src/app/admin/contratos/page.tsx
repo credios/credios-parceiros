@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { FileSignature, Plus, Download } from "lucide-react";
+import { FileSignature, PenLine, Plus, Download } from "lucide-react";
 import { requireAdminSession } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatDate, formatDateTime } from "@/lib/format";
@@ -102,6 +102,28 @@ export default async function AdminContractsPage() {
         </Card>
       )}
 
+      {contracts.some((c) => c.status === "PARTNER_SIGNED") && (
+        <Card
+          tone="outlined"
+          className="animate-fade-up-1 mt-8 border-credios-gold/30 bg-credios-gold-50"
+        >
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-credios-gold/15">
+                <PenLine size={20} className="text-credios-gold-700" aria-hidden />
+              </span>
+              <p className="t-body text-credios-charcoal">
+                <strong>
+                  {contracts.filter((c) => c.status === "PARTNER_SIGNED").length}
+                </strong>{" "}
+                contrato(s) aguardando a assinatura da Credios. As cópias finais só
+                são enviadas depois da sua assinatura.
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <h2 className="t-heading animate-fade-up-2 mt-10 mb-4 text-credios-charcoal">
         Contratos emitidos
       </h2>
@@ -156,9 +178,20 @@ export default async function AdminContractsPage() {
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex flex-wrap items-center gap-2">
-                        {c.status !== "SIGNED" && c.status !== "CANCELLED" && (
-                          <ResendContractButton contractId={c.id} />
+                        {c.status === "PARTNER_SIGNED" && (
+                          <Link
+                            href={`/admin/contratos/${c.id}/assinar`}
+                            className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-credios-gold px-4 text-sm font-semibold text-credios-charcoal shadow-sm transition-[filter] duration-150 hover:brightness-110"
+                          >
+                            <PenLine size={14} aria-hidden />
+                            Assinar
+                          </Link>
                         )}
+                        {c.status !== "SIGNED" &&
+                          c.status !== "PARTNER_SIGNED" &&
+                          c.status !== "CANCELLED" && (
+                            <ResendContractButton contractId={c.id} />
+                          )}
                         <Link
                           href={`/api/contracts/${c.id}/download`}
                           className="inline-flex min-h-11 items-center gap-1.5 px-2 text-sm font-medium text-credios-blue transition-colors duration-150 hover:text-credios-blue-700"

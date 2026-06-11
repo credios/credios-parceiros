@@ -356,7 +356,9 @@ const EVENT_LABELS: Record<string, string> = {
   LINK_OPENED: "Link aberto",
   OTP_SENT: "Código OTP enviado",
   OTP_VERIFIED: "Identidade verificada (OTP)",
-  SIGNED: "Contrato assinado",
+  SIGNED: "Assinado pelo parceiro",
+  ADMIN_SIGN_REQUESTED: "Enviado para assinatura da Credios",
+  ADMIN_SIGNED: "Assinado pela Credios (contratada)",
   DOWNLOADED: "Documento baixado",
 };
 
@@ -382,9 +384,20 @@ const LEGAL_NOTE =
   "14.063/2020, sendo válida e eficaz entre as partes, que expressamente a " +
   "aceitam como meio de comprovação de autoria e integridade.";
 
+export interface PdfSigner {
+  /** Papel exibido no carimbo (ex.: "PARCEIRO", "CREDIOS (CONTRATADA)"). */
+  role: string;
+  name: string;
+  document: string;
+  email: string;
+  signedAt: Date;
+  /** Como a identidade foi verificada — impresso no manifesto. */
+  verification: string;
+}
+
 export interface SignedPdfOptions {
   unsignedPdf: Uint8Array;
-  signer: { name: string; document: string; email: string };
+  signers: PdfSigner[];
   events: {
     event: string;
     createdAt: Date;
@@ -395,9 +408,10 @@ export interface SignedPdfOptions {
 }
 
 /**
- * Carrega o PDF original, carimba a assinatura na última página do documento
- * original e anexa a página de manifesto de auditoria. Retorna o PDF final e
- * seu hash SHA-256 (o hash do documento ORIGINAL é impresso no manifesto).
+ * Carrega o PDF original, carimba as assinaturas (uma caixa por signatário,
+ * lado a lado) na última página do documento original e anexa a página de
+ * manifesto de auditoria. Retorna o PDF final e seu hash SHA-256 (o hash do
+ * documento ORIGINAL é impresso no manifesto).
  */
 export async function buildSignedPdf(
   opts: SignedPdfOptions
@@ -408,57 +422,56 @@ export async function buildSignedPdf(
   const helvBold = await doc.embedFont(StandardFonts.HelveticaBold);
   const courier = await doc.embedFont(StandardFonts.Courier);
 
-  const signedEvent = opts.events.find((e) => e.event === "SIGNED");
-  const signedAt = signedEvent?.createdAt ?? new Date();
-
-  // --- Carimbo de assinatura na última página do documento original -------
+  // --- Carimbos de assinatura na última página do documento original ------
   const lastPage = doc.getPage(doc.getPageCount() - 1);
-  const stampH = 78;
+  const stampH = 92;
   const stampY = FOOTER_Y + 16;
-  lastPage.drawRectangle({
-    x: MARGIN,
-    y: stampY,
-    width: CONTENT_W,
-    height: stampH,
-    color: BLUE_50,
-    borderColor: BLUE,
-    borderWidth: 1,
-  });
-  const stampLines: { text: string; font: PDFFont; size: number }[] = [
-    {
-      text: sanitizeWinAnsi(`Assinado eletronicamente por ${opts.signer.name}`),
-      font: helvBold,
-      size: 10.5,
-    },
-    {
-      text: sanitizeWinAnsi(
-        `CPF/CNPJ ${opts.signer.document} · ${opts.signer.email}`
-      ),
-      font: helv,
-      size: 9,
-    },
-    {
-      text: sanitizeWinAnsi(`${formatBrasilia(signedAt)} (horário de Brasília)`),
-      font: helv,
-      size: 9,
-    },
-    {
-      text: sanitizeWinAnsi(`Código de verificação: ${opts.verifyCode}`),
-      font: helv,
-      size: 9,
-    },
-  ];
-  let sy = stampY + stampH - 20;
-  for (const line of stampLines) {
-    lastPage.drawText(line.text, {
-      x: MARGIN + 14,
-      y: sy,
-      size: line.size,
-      font: line.font,
-      color: line.font === helvBold ? INK : MUTED,
+  const gap = 10;
+  const n = Math.max(opts.signers.length, 1);
+  const boxW = (CONTENT_W - gap * (n - 1)) / n;
+
+  opts.signers.forEach((signer, i) => {
+    const x = MARGIN + i * (boxW + gap);
+    lastPage.drawRectangle({
+      x,
+      y: stampY,
+      width: boxW,
+      height: stampH,
+      color: BLUE_50,
+      borderColor: BLUE,
+      borderWidth: 1,
     });
-    sy -= line.size + 6;
-  }
+    const stampLines: { text: string; font: PDFFont; size: number }[] = [
+      { text: sanitizeWinAnsi(signer.role), font: helvBold, size: 7.5 },
+      {
+        text: sanitizeWinAnsi(`Assinado eletronicamente por ${signer.name}`),
+        font: helvBold,
+        size: 9,
+      },
+      { text: sanitizeWinAnsi(`CPF/CNPJ ${signer.document}`), font: helv, size: 8 },
+      { text: sanitizeWinAnsi(signer.email), font: helv, size: 8 },
+      {
+        text: sanitizeWinAnsi(`${formatBrasilia(signer.signedAt)} (Brasília)`),
+        font: helv,
+        size: 8,
+      },
+    ];
+    let sy = stampY + stampH - 16;
+    for (const line of stampLines) {
+      const wrapped = wrapText(line.text, line.font, line.size, boxW - 24);
+      for (const text of wrapped) {
+        lastPage.drawText(text, {
+          x: x + 12,
+          y: sy,
+          size: line.size,
+          font: line.font,
+          color: line.font === helvBold ? INK : MUTED,
+        });
+        sy -= line.size + 4.5;
+      }
+    }
+  });
+  // (o código de verificação já aparece no rodapé de todas as páginas)
 
   // --- Página(s) de manifesto de auditoria --------------------------------
   const w: Writer = { doc, page: doc.addPage([PAGE_W, PAGE_H]), y: PAGE_H - MARGIN };
@@ -494,10 +507,16 @@ export async function buildSignedPdf(
       spacingAfter: 1,
     });
 
-  section("Signatário");
-  field("Nome", opts.signer.name);
-  field("CPF/CNPJ", opts.signer.document);
-  field("Email", `${opts.signer.email} (verificado por código OTP)`);
+  section(opts.signers.length > 1 ? "Signatários" : "Signatário");
+  opts.signers.forEach((signer, i) => {
+    if (i > 0) w.y -= 6;
+    field("Papel", signer.role);
+    field("Nome", signer.name);
+    field("CPF/CNPJ", signer.document);
+    field("Email", signer.email);
+    field("Verificação de identidade", signer.verification);
+    field("Assinado em", `${formatBrasilia(signer.signedAt)} (Brasília)`);
+  });
 
   section("Integridade do documento");
   drawParagraph(

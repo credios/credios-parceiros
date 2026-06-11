@@ -84,6 +84,32 @@ export default async function VerifyCodePage({
     );
   }
 
+  if (contract.status === "PARTNER_SIGNED" && contract.signedAt) {
+    return (
+      <ResultShell>
+        <Card tone="white" className="flex flex-col items-center gap-4 text-center p-8">
+          <span className="flex size-14 items-center justify-center rounded-full bg-credios-gold-50">
+            <Clock size={30} className="text-credios-gold-700" aria-hidden />
+          </span>
+          <h1 className="t-heading text-credios-charcoal">
+            Assinatura em andamento
+          </h1>
+          <p className="t-body text-neutral-500">
+            O código{" "}
+            <span className="font-mono font-semibold">{contract.verifyCode}</span>{" "}
+            corresponde a um contrato já assinado pelo(a) parceiro(a){" "}
+            <span className="font-medium text-credios-charcoal">
+              {contract.partner.legalName}
+            </span>{" "}
+            em {formatBrasilia(contract.signedAt)}, aguardando a assinatura
+            institucional da Credios. O documento final, com as duas assinaturas e
+            o hash de integridade, fica disponível após a conclusão.
+          </p>
+        </Card>
+      </ResultShell>
+    );
+  }
+
   if (contract.status !== "SIGNED" || !contract.signedAt) {
     return (
       <ResultShell>
@@ -118,16 +144,34 @@ export default async function VerifyCodePage({
         </div>
 
         <dl>
-          <InfoRow label="Signatário" value={contract.partner.legalName} />
+          <InfoRow
+            label="Signatário — parceiro(a)"
+            value={contract.partner.legalName}
+          />
           <InfoRow
             label="CPF/CNPJ"
             value={maskDocument(contract.partner.document)}
           />
           <InfoRow
-            label="Assinado em (Brasília)"
+            label="Parceiro assinou em (Brasília)"
             value={formatBrasilia(contract.signedAt)}
           />
-          <InfoRow label="Assinado em (UTC)" value={formatUtc(contract.signedAt)} />
+          <InfoRow
+            label="Parceiro assinou em (UTC)"
+            value={formatUtc(contract.signedAt)}
+          />
+          {contract.adminSignedAt && (
+            <>
+              <InfoRow
+                label="Signatário — contratada"
+                value={`Credios Serviços Ltda${contract.adminSignerName ? `, por ${contract.adminSignerName}` : ""}`}
+              />
+              <InfoRow
+                label="Credios assinou em (Brasília)"
+                value={formatBrasilia(contract.adminSignedAt)}
+              />
+            </>
+          )}
           <InfoRow
             label="Minuta"
             value={`${contract.template.name} — versão ${contract.template.version}`}

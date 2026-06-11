@@ -145,7 +145,7 @@ export async function getOrCreateSignLink(partnerId: string): Promise<string> {
   }
 
   const signed = await prisma.contract.findFirst({
-    where: { partnerId, status: "SIGNED" },
+    where: { partnerId, status: { in: ["SIGNED", "PARTNER_SIGNED"] } },
   });
   if (signed) {
     throw new Error("Este parceiro já assinou o contrato de parceria.");
@@ -161,8 +161,12 @@ export async function resendContract(contractId: string): Promise<void> {
     where: { id: contractId },
     include: { partner: true },
   });
-  if (contract.status === "SIGNED" || contract.status === "CANCELLED") {
-    throw new Error("Este contrato não está mais pendente de assinatura.");
+  if (
+    contract.status === "SIGNED" ||
+    contract.status === "PARTNER_SIGNED" ||
+    contract.status === "CANCELLED"
+  ) {
+    throw new Error("Este contrato não está mais pendente da assinatura do parceiro.");
   }
 
   const { token, hash } = generateToken();

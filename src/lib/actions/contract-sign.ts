@@ -4,11 +4,10 @@ import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 import { generateOtp, hashToken, safeEqualHex } from "@/lib/tokens";
-import { buildSignedPdf } from "@/lib/contracts/pdf";
-import { formatDocument } from "@/lib/format";
 import {
-  sendContractSignedEmail,
+  sendAdminCountersignEmail,
   sendOtpEmail,
+  sendPartnerSignedEmail,
 } from "@/lib/email/templates";
 
 /**
@@ -128,9 +127,10 @@ export async function verifySignOtpAction(
 }
 
 /**
- * Etapa final: assina o contrato. Em transação: status SIGNED, evento de
- * auditoria, PDF assinado (carimbo + manifesto), hash final e ativação do
- * parceiro. Fora da transação: emails com o PDF anexo.
+ * Etapa final do PARCEIRO: registra a assinatura dele e libera o acesso ao
+ * portal imediatamente. O contrato fica em PARTNER_SIGNED aguardando a
+ * contra-assinatura da Credios — só então o PDF final é gerado e as cópias
+ * são enviadas (fluxo em src/lib/actions/admin-contracts.ts).
  */
 export async function signContractAction(token: string): Promise<ActionResult> {
   const contract = await findPendingContract(token);
@@ -144,55 +144,34 @@ export async function signContractAction(token: string): Promise<ActionResult> {
   }
 
   const { ip, userAgent } = await requestMeta();
-  const unsignedPdf = new Uint8Array(contract.pdfUnsigned);
 
-  let signedPdf: Uint8Array;
   try {
-    signedPdf = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       // Revalida dentro da transação para impedir assinatura dupla
       const fresh = await tx.contract.findUniqueOrThrow({
         where: { id: contract.id },
         select: { status: true },
       });
-      if (fresh.status === "SIGNED") {
+      if (fresh.status === "SIGNED" || fresh.status === "PARTNER_SIGNED") {
         throw new Error("ALREADY_SIGNED");
       }
 
       const signedAt = new Date();
       await tx.contract.update({
         where: { id: contract.id },
-        data: { status: "SIGNED", signedAt },
+        data: { status: "PARTNER_SIGNED", signedAt },
       });
-      await tx.contractAuditEvent.create({
-        data: { contractId: contract.id, event: "SIGNED", ip, userAgent },
+      await tx.contractAuditEvent.createMany({
+        data: [
+          { contractId: contract.id, event: "SIGNED", ip, userAgent },
+          { contractId: contract.id, event: "ADMIN_SIGN_REQUESTED" },
+        ],
       });
-
-      const events = await tx.contractAuditEvent.findMany({
-        where: { contractId: contract.id },
-        orderBy: { createdAt: "asc" },
-        select: { event: true, createdAt: true, ip: true, userAgent: true },
-      });
-
-      const { pdf, hash } = await buildSignedPdf({
-        unsignedPdf,
-        signer: {
-          name: contract.partner.legalName,
-          document: formatDocument(contract.partner.document),
-          email: contract.partner.email,
-        },
-        events,
-        verifyCode: contract.verifyCode,
-      });
-
-      await tx.contract.update({
-        where: { id: contract.id },
-        data: { pdfSigned: Buffer.from(pdf), documentHash: hash },
-      });
+      // Acesso liberado já na assinatura do parceiro
       await tx.partner.update({
         where: { id: contract.partnerId },
         data: { status: "ACTIVE" },
       });
-      return pdf;
     });
   } catch (err) {
     if (err instanceof Error && err.message === "ALREADY_SIGNED") {
@@ -205,14 +184,17 @@ export async function signContractAction(token: string): Promise<ActionResult> {
     };
   }
 
-  // Emails fora da transação (sendEmail nunca propaga exceção)
-  const recipients = [contract.partner.email];
-  if (process.env.ADMIN_ALERT_EMAIL) recipients.push(process.env.ADMIN_ALERT_EMAIL);
-  await sendContractSignedEmail({
-    to: recipients,
+  // Emails fora da transação (sendEmail nunca propaga exceção):
+  // confirmação ao parceiro (sem PDF — ele chega após a contra-assinatura)
+  // e pedido de assinatura ao admin da Credios.
+  await sendPartnerSignedEmail({
+    to: contract.partner.email,
     partnerName: contract.partner.legalName,
     verifyCode: contract.verifyCode,
-    pdf: Buffer.from(signedPdf),
+  });
+  await sendAdminCountersignEmail({
+    contractId: contract.id,
+    partnerName: contract.partner.legalName,
   });
 
   return { ok: true };

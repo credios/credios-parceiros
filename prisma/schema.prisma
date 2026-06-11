@@ -50,7 +50,8 @@ enum ContractStatus {
   DRAFT
   SENT
   VIEWED
-  SIGNED
+  PARTNER_SIGNED // assinado pelo parceiro — aguardando contra-assinatura da Credios
+  SIGNED // assinado por ambas as partes
   CANCELLED
 }
 
@@ -220,7 +221,12 @@ model Contract {
 
   sentAt   DateTime?
   viewedAt DateTime?
-  signedAt DateTime?
+  signedAt DateTime? // assinatura do parceiro
+
+  // Contra-assinatura da Credios (admin autenticado)
+  adminSignedAt   DateTime?
+  adminSignerId   String?
+  adminSignerName String? // snapshot do nome no momento da assinatura
 
   auditEvents ContractAuditEvent[]
   createdAt   DateTime             @default(now())

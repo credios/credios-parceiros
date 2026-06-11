@@ -63,7 +63,51 @@ export async function sendOtpEmail(opts: { to: string; otp: string }) {
   });
 }
 
-/** 2c. Contrato assinado (com PDF anexo). */
+/** 2c. Parceiro assinou — confirmação SEM PDF (a cópia vem após a contra-assinatura). */
+export async function sendPartnerSignedEmail(opts: {
+  to: string;
+  partnerName: string;
+  verifyCode: string;
+}) {
+  return sendEmail({
+    to: opts.to,
+    subject: "Sua assinatura foi registrada — acesso liberado",
+    html: renderEmailLayout({
+      eyebrow: "Contrato de parceria",
+      title: "Sua parte está assinada",
+      bodyHtml: `
+        <p>${opts.partnerName}, registramos sua assinatura eletrônica no contrato de parceria e <strong>seu acesso ao portal já está liberado</strong> — você já pode indicar clientes.</p>
+        <p>Falta só a assinatura institucional da Credios. Assim que ela for concluída, você recebe por email a cópia final em PDF com a trilha de auditoria completa e as duas assinaturas.</p>
+        <p>Código público de verificação: <strong>${opts.verifyCode}</strong></p>`,
+      cta: { label: "Acessar o portal", url: `${APP_URL}/app` },
+    }),
+  });
+}
+
+/** 2d. Pedido de contra-assinatura ao admin da Credios. */
+export async function sendAdminCountersignEmail(opts: {
+  contractId: string;
+  partnerName: string;
+}) {
+  const to = process.env.ADMIN_ALERT_EMAIL ?? CREDIOS.email;
+  return sendEmail({
+    to,
+    subject: `Contrato de ${opts.partnerName} aguardando sua assinatura`,
+    html: renderEmailLayout({
+      eyebrow: "Assinador Credios",
+      title: "Um contrato aguarda a assinatura da Credios",
+      bodyHtml: `
+        <p>O parceiro <strong>${opts.partnerName}</strong> acabou de assinar o contrato de parceria. Para concluir o documento, falta a assinatura institucional da Credios.</p>
+        <p>O acesso do parceiro ao portal já foi liberado; a cópia final em PDF só será enviada às partes depois da sua assinatura.</p>`,
+      cta: {
+        label: "Revisar e assinar",
+        url: `${APP_URL}/admin/contratos/${opts.contractId}/assinar`,
+      },
+    }),
+  });
+}
+
+/** 2e. Contrato concluído — assinado por ambas as partes (com PDF anexo). */
 export async function sendContractSignedEmail(opts: {
   to: string | string[];
   partnerName: string;
@@ -72,15 +116,14 @@ export async function sendContractSignedEmail(opts: {
 }) {
   return sendEmail({
     to: opts.to,
-    subject: "Contrato de parceria assinado — bem-vindo(a) à Credios",
+    subject: "Contrato de parceria concluído — assinado por ambas as partes",
     html: renderEmailLayout({
       eyebrow: "Contrato de parceria",
-      title: "Contrato assinado com sucesso",
+      title: "Contrato assinado por ambas as partes",
       bodyHtml: `
-        <p>O contrato de parceria de <strong>${opts.partnerName}</strong> foi assinado eletronicamente. A cópia em PDF está anexa, com a trilha de auditoria completa.</p>
+        <p>O contrato de parceria de <strong>${opts.partnerName}</strong> foi assinado eletronicamente pelo parceiro e pela Credios. A cópia final em PDF está anexa, com os dois carimbos de assinatura e a trilha de auditoria completa.</p>
         <p>Código público de verificação: <strong>${opts.verifyCode}</strong><br/>
-        Qualquer pessoa pode confirmar a autenticidade em <a href="${APP_URL}/verificar/${opts.verifyCode}" style="color:#4B7BE5;">parceiros.credios.com.br/verificar</a>.</p>
-        <p>Seu acesso ao portal está liberado. Boas indicações!</p>`,
+        Qualquer pessoa pode confirmar a autenticidade em <a href="${APP_URL}/verificar/${opts.verifyCode}" style="color:#4B7BE5;">parceiros.credios.com.br/verificar</a>.</p>`,
       cta: { label: "Acessar o portal", url: `${APP_URL}/app` },
     }),
     attachments: [

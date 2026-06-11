@@ -25,7 +25,9 @@ export async function GET(
     return new Response("Não encontrado", { status: 404 });
   }
   const accessible =
-    contract.status === "SIGNED" || contract.signTokenExp > new Date();
+    contract.status === "SIGNED" ||
+    contract.status === "PARTNER_SIGNED" ||
+    contract.signTokenExp > new Date();
   if (!accessible) {
     return new Response("Link expirado", { status: 410 });
   }

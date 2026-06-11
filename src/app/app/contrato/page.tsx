@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, Download, FileSignature } from "lucide-react";
+import { BadgeCheck, Clock, Download, FileSignature } from "lucide-react";
 import { requirePartnerSession } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatDateTime } from "@/lib/format";
@@ -20,6 +20,7 @@ export default async function ContratoPage() {
   });
 
   const signed = contract?.status === "SIGNED";
+  const partnerSigned = contract?.status === "PARTNER_SIGNED";
 
   return (
     <div className="max-w-2xl">
@@ -30,7 +31,35 @@ export default async function ContratoPage() {
         />
       </div>
 
-      {signed ? (
+      {partnerSigned ? (
+        <Card tone="white" className="animate-fade-up-1">
+          <div className="flex items-start gap-4">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-credios-gold-50">
+              <Clock size={22} className="text-credios-gold-700" aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <h2 className="t-heading text-credios-charcoal">
+                Assinado por você — aguardando a Credios
+              </h2>
+              <p className="t-caption text-neutral-500 mt-1">
+                Sua assinatura foi registrada em {formatDateTime(contract.signedAt)}
+              </p>
+              <p className="t-body text-neutral-500 mt-3">
+                Seu acesso já está liberado. Falta apenas a assinatura institucional
+                da Credios — assim que ela for concluída, você recebe por email a
+                cópia final em PDF, com as duas assinaturas e a trilha de auditoria
+                completa, e ela também fica disponível para download aqui.
+              </p>
+            </div>
+          </div>
+          <div className="mt-6 rounded-md bg-credios-ivory p-4">
+            <p className="t-caption text-neutral-500">Código de verificação</p>
+            <p className="font-mono text-lg font-semibold tracking-widest text-credios-charcoal mt-1">
+              {contract.verifyCode}
+            </p>
+          </div>
+        </Card>
+      ) : signed ? (
         <Card tone="white" className="animate-fade-up-1">
           <div className="flex items-start gap-4">
             <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-status-success-bg">

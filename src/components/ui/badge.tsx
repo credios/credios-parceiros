@@ -59,7 +59,8 @@ const contractMeta: Record<ContractStatus, { label: string; tone: StatusTone }> 
   DRAFT: { label: "Rascunho", tone: "neutral" },
   SENT: { label: "Enviado", tone: "info" },
   VIEWED: { label: "Visualizado", tone: "warning" },
-  SIGNED: { label: "Assinado", tone: "success" },
+  PARTNER_SIGNED: { label: "Aguardando Credios", tone: "gold" },
+  SIGNED: { label: "Assinado (2/2)", tone: "success" },
   CANCELLED: { label: "Cancelado", tone: "neutral" },
 };
 

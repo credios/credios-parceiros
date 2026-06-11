@@ -61,8 +61,23 @@ export default async function ContractSignPage({
             <CheckCircle2 size={32} className="text-credios-gold-700" aria-hidden />
           </span>
         }
-        title="Contrato assinado"
-        description={`Este contrato já foi assinado. Código de verificação: ${contract.verifyCode}. Uma cópia em PDF foi enviada para o email cadastrado.`}
+        title="Contrato concluído"
+        description={`Este contrato já foi assinado por ambas as partes. Código de verificação: ${contract.verifyCode}. A cópia em PDF foi enviada para o email cadastrado.`}
+        cta={<ButtonLink href="/entrar">Acessar o portal</ButtonLink>}
+      />
+    );
+  }
+
+  if (contract?.status === "PARTNER_SIGNED") {
+    return (
+      <StatusScreen
+        icon={
+          <span className="flex size-14 items-center justify-center rounded-full bg-status-success-bg">
+            <CheckCircle2 size={32} className="text-status-success" aria-hidden />
+          </span>
+        }
+        title="Sua parte está assinada"
+        description="Seu acesso ao portal já está liberado. Falta apenas a assinatura institucional da Credios — assim que ela for concluída, você recebe a cópia final em PDF por email."
         cta={<ButtonLink href="/entrar">Acessar o portal</ButtonLink>}
       />
     );

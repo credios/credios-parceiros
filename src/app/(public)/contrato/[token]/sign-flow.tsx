@@ -175,10 +175,14 @@ export function SignFlow({
           <CheckCircle2 size={36} className="text-credios-gold-700" aria-hidden />
         </span>
         <div>
-          <h2 className="t-display-md text-credios-charcoal">Contrato assinado</h2>
+          <h2 className="t-display-md text-credios-charcoal">
+            Assinado — acesso liberado
+          </h2>
           <p className="t-body text-neutral-500 mt-2 max-w-md">
-            Enviamos uma cópia em PDF para seu email, com a trilha de auditoria
-            completa. Bem-vindo(a) ao programa de parceiros da Credios.
+            Sua assinatura foi registrada e seu acesso ao portal já está liberado.
+            Falta só a assinatura institucional da Credios: assim que ela for
+            concluída, você recebe por email a cópia final em PDF, com as duas
+            assinaturas e a trilha de auditoria completa.
           </p>
         </div>
         <div className="rounded-md bg-credios-ivory px-5 py-3">

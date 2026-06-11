@@ -16,6 +16,7 @@ export async function logAdminAction(opts: {
     | "PARTNER_REACTIVATED"
     | "INVITE_RESENT"
     | "CONTRACT_RESENT"
+    | "CONTRACT_ADMIN_SIGNED"
     | "TEMPLATE_UPDATED"
     | "INTEGRATION_REPROCESSED";
   entity: "Lead" | "Commission" | "Partner" | "Contract" | "ContractTemplate" | "IntegrationLog";
