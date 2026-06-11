@@ -1,26 +1,203 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/*
+ * Design tokens — irmão visual de credios.com.br (src/app/globals.css do site).
+ * Nunca criar valores arbitrários: se um token não cobre o caso, adicionar aqui primeiro.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Marca */
+  --color-credios-blue: #4b7be5;
+  --color-credios-gold: #d4a351;
+  --color-credios-ivory: #f8f6f0;
+  --color-credios-charcoal: #141e30;
+
+  --color-credios-blue-50: #eef3fd;
+  --color-credios-blue-100: #d6e2fa;
+  --color-credios-blue-300: #8faeef;
+  --color-credios-blue-500: #4b7be5;
+  --color-credios-blue-700: #2a4f8c;
+  --color-credios-blue-900: #142b52;
+
+  --color-credios-gold-50: #fbf6ec;
+  --color-credios-gold-100: #f4e6c7;
+  --color-credios-gold-300: #e2c281;
+  --color-credios-gold-500: #d4a351;
+  --color-credios-gold-700: #a07930;
+  --color-credios-gold-900: #5c4319;
+
+  --color-neutral-50: #f8f6f0;
+  --color-neutral-100: #ebe9e2;
+  --color-neutral-200: #d6d3ca;
+  --color-neutral-300: #b5b2a8;
+  --color-neutral-400: #8b8881;
+  --color-neutral-500: #5f5d58;
+  --color-neutral-600: #46443f;
+  --color-neutral-700: #2e2d29;
+  --color-neutral-900: #141e30;
+
+  /* Semânticas de status (acessíveis em fundo claro) */
+  --color-status-success: #1e7f4f;
+  --color-status-success-bg: #e3f3ea;
+  --color-status-warning: #8a6116;
+  --color-status-warning-bg: #faf0d7;
+  --color-status-danger: #b3362c;
+  --color-status-danger-bg: #fbe9e7;
+  --color-status-info: #2a4f8c;
+  --color-status-info-bg: #e7eefc;
+
+  /* Sombras */
+  --shadow-xs: 0 1px 2px rgba(20, 30, 48, 0.04);
+  --shadow-sm: 0 2px 8px rgba(20, 30, 48, 0.06);
+  --shadow-md: 0 8px 24px -8px rgba(20, 30, 48, 0.1);
+  --shadow-lg: 0 20px 48px -16px rgba(20, 30, 48, 0.18);
+  --shadow-xl: 0 32px 64px -24px rgba(20, 30, 48, 0.22);
+  --shadow-glow-blue: 0 0 30px rgba(42, 84, 133, 0.4);
+  --shadow-glow-blue-lg: 0 0 50px rgba(75, 123, 229, 0.55);
+  --shadow-glow-gold: 0 8px 30px -4px rgba(212, 163, 81, 0.35);
+  --shadow-float: 0 8px 32px -8px rgba(20, 30, 48, 0.12);
+
+  /* Radius (escala custom do site: lg=20 < 3xl=24 < xl=28 < 4xl=32 < 2xl=36) */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 36px;
+  --radius-3xl: 24px;
+  --radius-4xl: 32px;
+
+  /* Fontes */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-credios-ivory);
+  color: var(--color-credios-charcoal);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tipografia fluida — mesma escala do site institucional */
+.t-display-xl {
+  font-size: clamp(2.25rem, 4.5vw + 0.5rem, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+.t-display-lg {
+  font-size: clamp(2rem, 3.5vw + 0.5rem, 3.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+}
+.t-display-md {
+  font-size: clamp(1.75rem, 2.5vw + 0.5rem, 2.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+.t-heading {
+  font-size: clamp(1.25rem, 1.5vw + 0.5rem, 1.75rem);
+  line-height: 1.25;
+  font-weight: 600;
+}
+.t-body-lg {
+  font-size: clamp(1rem, 0.5vw + 0.875rem, 1.125rem);
+  line-height: 1.6;
+  font-weight: 400;
+}
+.t-body {
+  font-size: 1rem;
+  line-height: 1.6;
+  font-weight: 400;
+}
+.t-caption {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+}
+.t-eyebrow {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Números de dinheiro são os heróis tipográficos do produto */
+.t-money {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+
+/* Linha de acento dourada (títulos em fundo escuro) */
+.bg-accent-line-gold {
+  background-image: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--color-credios-gold) 45%, transparent),
+    transparent
+  );
+}
+
+/* Foco de teclado visível em todo o produto */
+:focus-visible {
+  outline: 2px solid var(--color-credios-blue);
+  outline-offset: 2px;
+}
+
+/* Reveal: fade + slide-up na viewport (substitui framer-motion) */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(var(--reveal-y, 20px));
+  transition:
+    opacity 0.6s var(--ease-out-expo),
+    transform 0.6s var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+[data-reveal-visible] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Skeleton de loading */
+.skeleton {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--color-neutral-100) 25%,
+    var(--color-neutral-50) 50%,
+    var(--color-neutral-100) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

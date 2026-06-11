@@ -1,0 +1,279 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  PARTNER
+}
+
+enum PartnerStatus {
+  INVITED
+  PENDING_CONTRACT
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+
+enum PersonType {
+  PF
+  PJ
+}
+
+enum LeadStatus {
+  RECEBIDO // cadastrado pelo parceiro, ainda não triado
+  EM_ANALISE // Credios analisando perfil/documentos
+  DOCUMENTACAO // coleta/conferência de documentos
+  AVALIACAO_IMOVEL // laudo de avaliação em andamento
+  EM_BANCO // proposta submetida à(s) instituição(ões)
+  APROVADO // crédito aprovado, em formalização
+  CONTRATACAO // assinatura/cartório/registro
+  LIBERADO // crédito liberado — gera comissão
+  RECUSADO // operação não aprovada
+  CANCELADO // cliente desistiu / duplicado / inválido
+}
+
+enum CommissionStatus {
+  PREVISTA
+  A_RECEBER
+  PAGA
+  CANCELADA
+}
+
+enum ContractStatus {
+  DRAFT
+  SENT
+  VIEWED
+  SIGNED
+  CANCELLED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String?
+  name         String
+  role         Role
+  partner      Partner?  @relation(fields: [partnerId], references: [id])
+  partnerId    String?   @unique
+  inviteToken  String?   @unique // hash SHA-256 do token enviado por email
+  inviteExpiry DateTime?
+  resetToken   String?   @unique // hash SHA-256 do token de reset de senha
+  resetExpiry  DateTime?
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Partner {
+  id          String        @id @default(cuid())
+  status      PartnerStatus @default(INVITED)
+  personType  PersonType
+  // PF: nome completo + CPF | PJ: razão social + CNPJ + representante legal
+  legalName   String
+  document    String        @unique // CPF ou CNPJ normalizado (só dígitos)
+  repName     String? // representante legal (se PJ)
+  repDocument String?
+  email       String
+  phone       String
+  archetype   String // corretor | contador | advogado | imobiliaria | administradora | assessor | outro
+  city        String?
+  state       String?
+
+  // Recebimento de comissão
+  pixKey         String?
+  bankInfo       Json?
+  commissionRate Decimal @default(1.50) @db.Decimal(5, 2) // % sobre o crédito liberado
+
+  crmPartnerRef String? // identificador do parceiro no CRM
+  notes         String? // notas internas (visível só ao admin)
+
+  users       User[]
+  leads       Lead[]
+  commissions Commission[]
+  contracts   Contract[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lead {
+  id        String  @id @default(cuid())
+  partner   Partner @relation(fields: [partnerId], references: [id])
+  partnerId String
+
+  // Dados do cliente indicado
+  name     String
+  document String // CPF/CNPJ do cliente, normalizado — usado para deduplicação
+  email    String?
+  phone    String
+  city     String?
+  state    String?
+
+  // Dados da operação pretendida
+  product         String   @default("CGI") // CGI | CONDOMINIO | FINANCIAMENTO
+  requestedAmount Decimal? @db.Decimal(14, 2)
+  propertyValue   Decimal? @db.Decimal(14, 2)
+  propertyCity    String?
+  notes           String? // contexto do parceiro sobre o cliente
+  consentAt       DateTime // LGPD: consentimento declarado pelo parceiro
+
+  status        LeadStatus        @default(RECEBIDO)
+  statusHistory LeadStatusEvent[]
+
+  // Integração CRM
+  crmLeadId     String? @unique
+  crmSyncStatus String  @default("PENDING") // PENDING | SYNCED | FAILED
+
+  // Resultado
+  approvedAmount  Decimal?    @db.Decimal(14, 2)
+  disbursedAmount Decimal?    @db.Decimal(14, 2) // valor efetivamente liberado — base da comissão
+  disbursedAt     DateTime?
+  commission      Commission?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partnerId, status])
+  @@index([document])
+  @@index([crmSyncStatus])
+}
+
+model LeadStatusEvent {
+  id        String      @id @default(cuid())
+  lead      Lead        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  leadId    String
+  from      LeadStatus?
+  to        LeadStatus
+  source    String // CRM_WEBHOOK | ADMIN | SYSTEM
+  actorId   String? // user admin, se manual
+  note      String?
+  createdAt DateTime    @default(now())
+
+  @@index([leadId, createdAt])
+}
+
+model Commission {
+  id         String           @id @default(cuid())
+  partner    Partner          @relation(fields: [partnerId], references: [id])
+  partnerId  String
+  lead       Lead             @relation(fields: [leadId], references: [id])
+  leadId     String           @unique
+  baseAmount Decimal          @db.Decimal(14, 2) // valor do crédito liberado
+  rate       Decimal          @db.Decimal(5, 2) // % aplicada (snapshot no momento da criação)
+  amount     Decimal          @db.Decimal(14, 2) // baseAmount * rate / 100
+  status     CommissionStatus @default(A_RECEBER)
+  paidAt     DateTime?
+
+  // Arquivos pequenos e de baixo volume ficam no banco (rota autenticada serve o binário)
+  paymentProof     Bytes? // comprovante de pagamento (upload do admin)
+  paymentProofMime String?
+  invoice          Bytes? // NF do parceiro PJ
+  invoiceMime      String?
+  invoiceName      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partnerId, status])
+  @@index([status, createdAt])
+}
+
+model ContractTemplate {
+  id        String     @id @default(cuid())
+  version   Int
+  name      String
+  bodyHtml  String     @db.Text // merge fields: {{partner.legalName}}, {{credios.razaoSocial}}, {{contract.date}}, {{commission.rate}}...
+  active    Boolean    @default(false)
+  contracts Contract[]
+  createdAt DateTime   @default(now())
+
+  @@unique([version])
+}
+
+model Contract {
+  id           String           @id @default(cuid())
+  partner      Partner          @relation(fields: [partnerId], references: [id])
+  partnerId    String
+  template     ContractTemplate @relation(fields: [templateId], references: [id])
+  templateId   String
+  status       ContractStatus   @default(DRAFT)
+  signToken    String           @unique // hash SHA-256 do token de acesso ao fluxo de assinatura
+  signTokenExp DateTime
+  verifyCode   String           @unique // código curto público de verificação
+
+  // OTP de assinatura
+  otpHash     String?
+  otpExpiry   DateTime?
+  otpAttempts Int       @default(0)
+  otpVerified Boolean   @default(false)
+
+  pdfUnsigned  Bytes?
+  pdfSigned    Bytes?
+  documentHash String? // SHA-256 do PDF final assinado
+
+  sentAt   DateTime?
+  viewedAt DateTime?
+  signedAt DateTime?
+
+  auditEvents ContractAuditEvent[]
+  createdAt   DateTime             @default(now())
+
+  @@index([partnerId])
+}
+
+model ContractAuditEvent {
+  id         String   @id @default(cuid())
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contractId String
+  event      String // GENERATED | SENT | LINK_OPENED | OTP_SENT | OTP_VERIFIED | SIGNED | DOWNLOADED
+  ip         String?
+  userAgent  String?
+  geo        String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([contractId, createdAt])
+}
+
+model IntegrationLog {
+  id        String   @id @default(cuid())
+  direction String // OUTBOUND (portal→CRM) | INBOUND (CRM→portal)
+  endpoint  String
+  payload   Json
+  response  Json?
+  success   Boolean
+  error     String?
+  retries   Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([success, createdAt])
+}
+
+// Auditoria de ações administrativas sensíveis (status, pagamento, taxa)
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String
+  action    String // ex.: LEAD_STATUS_CHANGED | COMMISSION_PAID | PARTNER_RATE_CHANGED | PARTNER_SUSPENDED
+  entity    String // Lead | Commission | Partner | Contract
+  entityId  String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+}
+
+// Rate limiting persistente (login, convite, reset, OTP)
+model RateLimitHit {
+  id        String   @id @default(cuid())
+  key       String // ex.: "login:email@x.com" | "login:ip:1.2.3.4" | "otp:contractId"
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
+}
