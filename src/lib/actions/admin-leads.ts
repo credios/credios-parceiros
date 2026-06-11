@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireAdminSession } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAdminAction } from "@/lib/audit";
@@ -168,4 +169,66 @@ export async function reprocessAllSyncAction(): Promise<ActionState> {
         ? `${okCount} reprocessado(s), ${failCount} falhou(ram). Veja o log abaixo.`
         : undefined,
   };
+}
+
+/**
+ * Exclusão DEFINITIVA de um lead (testes, cadastros errados). Regras:
+ * - Lead com comissão vinculada não pode ser excluído (trilha financeira);
+ *   cancele a comissão não faz diferença — o vínculo contábil permanece.
+ * - O histórico de status cai junto (cascade). A cópia no CRM, se existir,
+ *   NÃO é tocada — exclua lá também se for o caso.
+ * - Confirmação por texto ("EXCLUIR") exigida no form.
+ */
+export async function deleteLeadAction(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { userId } = await requireAdminSession();
+  const leadId = String(formData.get("leadId") ?? "");
+  const confirm = String(formData.get("confirm") ?? "").trim().toUpperCase();
+  if (!leadId) return { ok: false, error: "Lead não identificado." };
+  if (confirm !== "EXCLUIR") {
+    return { ok: false, error: 'Digite "EXCLUIR" para confirmar a exclusão.' };
+  }
+
+  const lead = await prisma.lead.findUnique({
+    where: { id: leadId },
+    select: {
+      id: true,
+      name: true,
+      document: true,
+      status: true,
+      partnerId: true,
+      crmLeadId: true,
+      commission: { select: { id: true } },
+    },
+  });
+  if (!lead) return { ok: false, error: "Lead não encontrado." };
+  if (lead.commission) {
+    return {
+      ok: false,
+      error:
+        "Este lead tem comissão vinculada e não pode ser excluído — a trilha financeira precisa ser preservada. Exclua apenas leads de teste/erro sem comissão.",
+    };
+  }
+
+  await prisma.lead.delete({ where: { id: leadId } });
+
+  await logAdminAction({
+    actorId: userId,
+    action: "LEAD_DELETED",
+    entity: "Lead",
+    entityId: leadId,
+    metadata: {
+      name: lead.name,
+      document: lead.document,
+      status: lead.status,
+      partnerId: lead.partnerId,
+      crmLeadId: lead.crmLeadId,
+    },
+  });
+
+  revalidatePath("/admin/leads");
+  revalidatePath("/admin");
+  redirect("/admin/leads?excluido=1");
 }

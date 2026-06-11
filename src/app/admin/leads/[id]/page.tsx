@@ -18,6 +18,7 @@ import { LeadStatusBadge, CommissionStatusBadge, Badge } from "@/components/ui/b
 import { PageHeader } from "@/components/ui/page-header";
 import { ReprocessSyncButton } from "../../_components/sync-buttons";
 import { LeadStatusForm } from "./lead-status-form";
+import { DeleteLeadForm } from "./delete-lead-form";
 
 export const metadata: Metadata = { title: "Lead" };
 
@@ -281,6 +282,16 @@ export default async function AdminLeadDetailPage({
                 <ReprocessSyncButton leadId={lead.id} />
               </div>
             )}
+          </Card>
+
+          {/* Zona de risco — exclusão definitiva (testes/cadastros errados) */}
+          <Card tone="outlined" className="border-status-danger/30">
+            <h2 className="t-eyebrow text-status-danger mb-3">Zona de risco</h2>
+            <DeleteLeadForm
+              leadId={lead.id}
+              hasCommission={Boolean(lead.commission)}
+              syncedWithCrm={Boolean(lead.crmLeadId)}
+            />
           </Card>
         </div>
       </div>

@@ -107,6 +107,15 @@ export default async function AdminLeadsPage({
         />
       </div>
 
+      {sp.excluido === "1" && (
+        <div
+          className="mb-5 rounded-md bg-status-success-bg px-4 py-3 text-sm text-status-success"
+          role="status"
+        >
+          Lead excluído definitivamente. A ação ficou registrada na auditoria.
+        </div>
+      )}
+
       <form
         className="animate-fade-up-1 mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5"
         action="/admin/leads"

@@ -7,6 +7,7 @@ export async function logAdminAction(opts: {
   action:
     | "LEAD_STATUS_CHANGED"
     | "LEAD_REASSIGNED"
+    | "LEAD_DELETED"
     | "COMMISSION_PAID"
     | "COMMISSION_CANCELLED"
     | "PARTNER_CREATED"
