@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireAdminSession } from "@/auth";
+import { requireAdminSession, requireMasterSession } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAdminAction } from "@/lib/audit";
 import { applyStatusChange } from "@/lib/leads";
@@ -26,7 +26,7 @@ export async function updateLeadStatusAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId, partnerScope } = await requireAdminSession();
 
   const parsed = updateLeadStatusSchema.safeParse({
     leadId: formData.get("leadId"),
@@ -41,8 +41,9 @@ export async function updateLeadStatusAction(
   }
   const data = parsed.data;
 
-  const lead = await prisma.lead.findUnique({
-    where: { id: data.leadId },
+  // Ownership: gerente só muda status de leads da própria carteira.
+  const lead = await prisma.lead.findFirst({
+    where: { id: data.leadId, partner: partnerScope },
     select: { status: true },
   });
   if (!lead) return { ok: false, error: "Lead não encontrado." };
@@ -94,7 +95,7 @@ export async function reprocessLeadSyncAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId } = await requireMasterSession();
   const leadId = String(formData.get("leadId") ?? "");
   if (!leadId) return { ok: false, error: "Lead não identificado." };
 
@@ -127,7 +128,7 @@ export async function reprocessLeadSyncAction(
 }
 
 export async function reprocessAllSyncAction(): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId } = await requireMasterSession();
 
   const leads = await prisma.lead.findMany({
     where: { crmSyncStatus: { in: ["FAILED", "PENDING"] } },
@@ -183,7 +184,7 @@ export async function deleteLeadAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId } = await requireMasterSession();
   const leadId = String(formData.get("leadId") ?? "");
   const confirm = String(formData.get("confirm") ?? "").trim().toUpperCase();
   if (!leadId) return { ok: false, error: "Lead não identificado." };

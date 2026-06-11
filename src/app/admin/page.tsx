@@ -43,7 +43,7 @@ function dashboardCutoffs() {
 }
 
 export default async function AdminDashboardPage() {
-  await requireAdminSession();
+  const { isMaster, partnerScope } = await requireAdminSession();
 
   const { nowMs, today, weekAgo, coolingCutoff } = dashboardCutoffs();
 
@@ -58,16 +58,24 @@ export default async function AdminDashboardPage() {
     syncPending,
     queuedCommissions,
   ] = await Promise.all([
-    prisma.lead.count({ where: { createdAt: { gte: today } } }),
-    prisma.lead.count({ where: { createdAt: { gte: weekAgo } } }),
+    prisma.lead.count({
+      where: { createdAt: { gte: today }, partner: partnerScope },
+    }),
+    prisma.lead.count({
+      where: { createdAt: { gte: weekAgo }, partner: partnerScope },
+    }),
     prisma.commission.aggregate({
       _sum: { amount: true },
-      where: { status: "A_RECEBER" },
+      where: { status: "A_RECEBER", partner: partnerScope },
     }),
-    prisma.partner.count({ where: { status: "ACTIVE" } }),
-    prisma.lead.groupBy({ by: ["status"], _count: { _all: true } }),
+    prisma.partner.count({ where: { status: "ACTIVE", ...partnerScope } }),
+    prisma.lead.groupBy({
+      by: ["status"],
+      _count: { _all: true },
+      where: { partner: partnerScope },
+    }),
     prisma.partner.findMany({
-      where: { status: "ACTIVE" },
+      where: { status: "ACTIVE", ...partnerScope },
       select: {
         id: true,
         legalName: true,
@@ -75,10 +83,10 @@ export default async function AdminDashboardPage() {
         leads: { select: { createdAt: true }, orderBy: { createdAt: "desc" }, take: 1 },
       },
     }),
-    prisma.lead.count({ where: { crmSyncStatus: "FAILED" } }),
-    prisma.lead.count({ where: { crmSyncStatus: "PENDING" } }),
+    prisma.lead.count({ where: { crmSyncStatus: "FAILED", partner: partnerScope } }),
+    prisma.lead.count({ where: { crmSyncStatus: "PENDING", partner: partnerScope } }),
     prisma.commission.findMany({
-      where: { status: "A_RECEBER" },
+      where: { status: "A_RECEBER", partner: partnerScope },
       orderBy: { createdAt: "asc" },
       take: 5,
       include: {
@@ -211,7 +219,8 @@ export default async function AdminDashboardPage() {
             )}
           </Card>
 
-          {/* Integração */}
+          {/* Integração — só o configurador opera o CRM */}
+          {isMaster && (
           <Card>
             <div className="flex items-center gap-2">
               <Plug size={18} className="text-credios-blue" aria-hidden />
@@ -235,6 +244,7 @@ export default async function AdminDashboardPage() {
               <ArrowRight size={15} aria-hidden />
             </Link>
           </Card>
+          )}
 
           {/* Comissões na fila */}
           <Card>

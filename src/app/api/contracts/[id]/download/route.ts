@@ -28,7 +28,8 @@ export async function GET(
     return new Response("Não encontrado", { status: 404 });
   }
 
-  const isAdmin = session.user.role === "ADMIN";
+  const isAdmin =
+    session.user.role === "ADMIN" || session.user.role === "ADMIN_MASTER";
   if (!isAdmin && session.user.partnerId !== contract.partnerId) {
     return new Response("Acesso negado", { status: 403 });
   }

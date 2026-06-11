@@ -7,13 +7,16 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") {
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "ADMIN_MASTER")) {
     return new Response("Unauthorized", { status: 401 });
   }
 
   const { id } = await params;
-  const commission = await prisma.commission.findUnique({
-    where: { id },
+  // Gerente só baixa NFs de comissões da própria carteira.
+  const partnerScope =
+    session.user.role === "ADMIN_MASTER" ? {} : { managerId: session.user.id };
+  const commission = await prisma.commission.findFirst({
+    where: { id, partner: partnerScope },
     select: { invoice: true, invoiceMime: true, invoiceName: true },
   });
   if (!commission?.invoice) {

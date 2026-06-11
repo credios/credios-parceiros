@@ -43,7 +43,7 @@ export default async function AdminLeadsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireAdminSession();
+  const { partnerScope } = await requireAdminSession();
   const sp = await searchParams;
 
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
@@ -56,7 +56,8 @@ export default async function AdminLeadsPage({
     Object.keys(STATUS_META).includes(statusParam) ? statusParam : undefined
   ) as LeadStatus | undefined;
 
-  const where: Prisma.LeadWhereInput = {};
+  // Escopo de carteira: gerente só vê leads de parceiros que são dele.
+  const where: Prisma.LeadWhereInput = { partner: partnerScope };
   if (q) {
     const digits = onlyDigits(q);
     where.OR = [
@@ -78,6 +79,7 @@ export default async function AdminLeadsPage({
     }),
     prisma.lead.count({ where }),
     prisma.partner.findMany({
+      where: partnerScope,
       select: { id: true, legalName: true },
       orderBy: { legalName: "asc" },
     }),

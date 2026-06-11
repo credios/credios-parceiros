@@ -25,6 +25,26 @@ export async function sendInviteEmail(opts: {
   });
 }
 
+/** 1b. Convite de GERENTE do programa (admin do portal). */
+export async function sendManagerInviteEmail(opts: {
+  to: string;
+  managerName: string;
+  token: string;
+}) {
+  return sendEmail({
+    to: opts.to,
+    subject: "Seu acesso de gerente ao Portal de Parceiros Credios",
+    html: renderEmailLayout({
+      eyebrow: "Equipe Credios",
+      title: `${opts.managerName}, seu acesso de gerente está pronto`,
+      bodyHtml: `
+        <p>Você foi cadastrado como gerente do programa de parcerias da Credios. Pelo painel, você cadastra e acompanha os parceiros da sua carteira, as indicações e a produção de cada um.</p>
+        <p>Para começar, crie sua senha de acesso. O link vale por 7 dias.</p>`,
+      cta: { label: "Criar minha senha", url: `${APP_URL}/convite/${opts.token}` },
+    }),
+  });
+}
+
 /** 2a. Contrato pronto para assinatura. */
 export async function sendContractReadyEmail(opts: {
   to: string;

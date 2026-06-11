@@ -9,7 +9,8 @@ datasource db {
 }
 
 enum Role {
-  ADMIN
+  ADMIN_MASTER // configurador: tudo + gestão de gerentes, taxas, templates, pagamentos
+  ADMIN // gerente do programa: opera a própria carteira de parceiros
   PARTNER
 }
 
@@ -71,6 +72,9 @@ model User {
   lastLoginAt  DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+
+  // Carteira de relacionamento (quando ADMIN/ADMIN_MASTER é gerente de parceiros)
+  managedPartners Partner[] @relation("PartnerManager")
 }
 
 model Partner {
@@ -96,6 +100,11 @@ model Partner {
   crmPartnerRef String? // identificador do parceiro no CRM
   notes         String? // notas internas (visível só ao admin)
 
+  // Gerente do programa responsável pela carteira (obrigatório no app;
+  // a coluna nasce nullable só para o backfill da migração)
+  manager   User?   @relation("PartnerManager", fields: [managerId], references: [id])
+  managerId String?
+
   users       User[]
   leads       Lead[]
   commissions Commission[]
@@ -103,6 +112,8 @@ model Partner {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([managerId])
 }
 
 model Lead {

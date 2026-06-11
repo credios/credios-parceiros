@@ -24,11 +24,11 @@ export default async function AdminPartnersPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireAdminSession();
+  const { isMaster, partnerScope } = await requireAdminSession();
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
 
-  const where: Prisma.PartnerWhereInput = {};
+  const where: Prisma.PartnerWhereInput = { ...partnerScope };
   if (q) {
     const digits = onlyDigits(q);
     where.OR = [
@@ -40,7 +40,10 @@ export default async function AdminPartnersPage({
   const partners = await prisma.partner.findMany({
     where,
     orderBy: { createdAt: "desc" },
-    include: { _count: { select: { leads: true } } },
+    include: {
+      _count: { select: { leads: true } },
+      manager: { select: { name: true } },
+    },
   });
 
   return (
@@ -102,6 +105,9 @@ export default async function AdminPartnersPage({
                   <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Tipo</th>
                   <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Documento</th>
                   <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Status</th>
+                  {isMaster && (
+                    <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Gerente</th>
+                  )}
                   <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">Taxa</th>
                   <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">
                     Leads
@@ -132,6 +138,11 @@ export default async function AdminPartnersPage({
                     <td className="px-3 py-3.5">
                       <PartnerStatusBadge status={p.status} />
                     </td>
+                    {isMaster && (
+                      <td className="px-3 py-3.5 text-neutral-600 whitespace-nowrap">
+                        {p.manager?.name ?? "—"}
+                      </td>
+                    )}
                     <td className="t-money px-3 py-3.5 text-right text-credios-charcoal">
                       {formatPercent(p.commissionRate)}
                     </td>

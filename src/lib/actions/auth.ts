@@ -98,17 +98,24 @@ export async function acceptInviteAction(
   const user = await prisma.user.findUnique({
     where: { inviteToken: hashToken(parsed.data.token) },
   });
-  if (
-    !user ||
-    user.role !== "PARTNER" ||
-    !user.partnerId ||
-    !user.inviteExpiry ||
-    user.inviteExpiry <= new Date()
-  ) {
+  if (!user || !user.inviteExpiry || user.inviteExpiry <= new Date()) {
     return { ok: false, error: invalidMessage };
   }
 
   const passwordHash = await bcrypt.hash(parsed.data.password, 12);
+
+  // Convite de GERENTE (ADMIN): só cria a senha — sem contrato de parceria.
+  if (user.role === "ADMIN" || user.role === "ADMIN_MASTER") {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash, inviteToken: null, inviteExpiry: null },
+    });
+    redirect("/entrar?conta=ok");
+  }
+
+  if (user.role !== "PARTNER" || !user.partnerId) {
+    return { ok: false, error: invalidMessage };
+  }
 
   await prisma.$transaction([
     prisma.user.update({

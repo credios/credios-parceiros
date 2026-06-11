@@ -16,6 +16,7 @@ export default async function LoginPage({
 }) {
   const params = await searchParams;
   const resetOk = params.reset === "ok";
+  const contaOk = params.conta === "ok";
 
   return (
     <AuthShell>
@@ -24,6 +25,21 @@ export default async function LoginPage({
         <p className="t-body text-neutral-500 mt-1.5">
           Acompanhe suas indicações e comissões.
         </p>
+        {contaOk && (
+          <div
+            className="mt-4 flex items-start gap-2 rounded-md bg-status-success-bg px-4 py-3"
+            role="status"
+          >
+            <CheckCircle2
+              size={18}
+              className="text-status-success shrink-0 mt-0.5"
+              aria-hidden
+            />
+            <p className="text-sm text-status-success">
+              Conta criada. Entre com seu email e a senha que você definiu.
+            </p>
+          </div>
+        )}
         {resetOk && (
           <div
             className="mt-4 flex items-start gap-2 rounded-md bg-status-success-bg px-4 py-3"

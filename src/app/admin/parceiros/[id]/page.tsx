@@ -28,6 +28,7 @@ import {
   ReactivatePartnerForm,
   RateForm,
   EditPartnerForm,
+  ReassignManagerForm,
 } from "./partner-actions";
 
 export const metadata: Metadata = { title: "Parceiro" };
@@ -39,14 +40,16 @@ export default async function AdminPartnerDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireAdminSession();
+  const { isMaster, partnerScope } = await requireAdminSession();
   const { id } = await params;
   const sp = await searchParams;
   const justInvited = sp.convidado === "1";
 
-  const partner = await prisma.partner.findUnique({
-    where: { id },
+  // Escopo de carteira: gerente só abre parceiros que são dele.
+  const partner = await prisma.partner.findFirst({
+    where: { id, ...partnerScope },
     include: {
+      manager: { select: { id: true, name: true } },
       leads: {
         orderBy: { createdAt: "desc" },
         include: { commission: { select: { id: true } } },
@@ -58,6 +61,14 @@ export default async function AdminPartnerDetailPage({
     },
   });
   if (!partner) notFound();
+
+  const managers = isMaster
+    ? await prisma.user.findMany({
+        where: { role: { in: ["ADMIN", "ADMIN_MASTER"] }, passwordHash: { not: null } },
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      })
+    : [];
 
   const totalLeads = partner.leads.length;
   const inProgress = partner.leads.filter(
@@ -99,11 +110,12 @@ export default async function AdminPartnerDetailPage({
         action={
           <div className="flex flex-wrap items-center gap-2">
             {partner.status === "INVITED" && <ResendInviteForm partnerId={partner.id} />}
-            {partner.status === "SUSPENDED" || partner.status === "INACTIVE" ? (
-              <ReactivatePartnerForm partnerId={partner.id} />
-            ) : (
-              <SuspendPartnerForm partnerId={partner.id} />
-            )}
+            {isMaster &&
+              (partner.status === "SUSPENDED" || partner.status === "INACTIVE" ? (
+                <ReactivatePartnerForm partnerId={partner.id} />
+              ) : (
+                <SuspendPartnerForm partnerId={partner.id} />
+              ))}
           </div>
         }
       />
@@ -130,6 +142,10 @@ export default async function AdminPartnerDetailPage({
           <Card>
             <h2 className="t-heading text-credios-charcoal">Cadastro</h2>
             <dl className="mt-4 flex flex-col gap-3 text-sm">
+              <div>
+                <dt className="t-eyebrow text-neutral-400">Gerente responsável</dt>
+                <dd className="mt-1 font-medium">{partner.manager?.name ?? "—"}</dd>
+              </div>
               <div>
                 <dt className="t-eyebrow text-neutral-400">CPF/CNPJ</dt>
                 <dd className="mt-1 font-medium">{formatDocument(partner.document)}</dd>
@@ -180,6 +196,15 @@ export default async function AdminPartnerDetailPage({
                 }}
               />
             </div>
+            {isMaster && (
+              <div className="mt-5 border-t border-neutral-100 pt-4">
+                <ReassignManagerForm
+                  partnerId={partner.id}
+                  currentManagerId={partner.manager?.id ?? null}
+                  managers={managers}
+                />
+              </div>
+            )}
           </Card>
 
           <Card>
@@ -187,12 +212,14 @@ export default async function AdminPartnerDetailPage({
             <p className="t-money mt-2 text-2xl text-credios-charcoal">
               {formatPercent(partner.commissionRate)}
             </p>
-            <div className="mt-4 border-t border-neutral-100 pt-4">
-              <RateForm
-                partnerId={partner.id}
-                currentRate={Number(partner.commissionRate).toFixed(2).replace(".", ",")}
-              />
-            </div>
+            {isMaster && (
+              <div className="mt-4 border-t border-neutral-100 pt-4">
+                <RateForm
+                  partnerId={partner.id}
+                  currentRate={Number(partner.commissionRate).toFixed(2).replace(".", ",")}
+                />
+              </div>
+            )}
           </Card>
         </div>
 

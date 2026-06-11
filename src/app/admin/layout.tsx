@@ -5,6 +5,7 @@ import { AdminNav } from "./_components/admin-nav";
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const session = await auth();
   const adminName = session?.user?.name ?? "Admin";
+  const isMaster = session?.user?.role === "ADMIN_MASTER";
 
   async function signOutAction() {
     "use server";
@@ -13,7 +14,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   return (
     <div className="min-h-dvh lg:flex">
-      <AdminNav adminName={adminName} signOutAction={signOutAction} />
+      <AdminNav adminName={adminName} isMaster={isMaster} signOutAction={signOutAction} />
       <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
         <div className="mx-auto w-full max-w-6xl">{children}</div>
       </main>

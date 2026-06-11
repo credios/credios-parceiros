@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { requireAdminSession } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { mergeTemplate, sampleMergeData } from "@/lib/contracts/merge";
@@ -10,7 +11,9 @@ import { TemplateForm } from "./template-form";
 export const metadata: Metadata = { title: "Nova versão do contrato" };
 
 export default async function NewTemplatePage() {
-  await requireAdminSession();
+  // Templates do contrato são assunto do configurador.
+  const { isMaster } = await requireAdminSession();
+  if (!isMaster) redirect("/admin/contratos");
 
   const activeTemplate = await prisma.contractTemplate.findFirst({
     where: { active: true },

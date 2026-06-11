@@ -63,10 +63,32 @@ export async function requirePartnerSession() {
   return { userId: session.user.id, partnerId: session.user.partnerId };
 }
 
-/** Sessão obrigatória de admin — joga erro se não for ADMIN. */
+/**
+ * Sessão obrigatória de admin (gerente OU master).
+ * `isMaster` distingue o configurador; `partnerScope` é o filtro de carteira
+ * para queries de Partner: master enxerga tudo, gerente só os seus.
+ */
 export async function requireAdminSession() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") {
+  if (
+    !session?.user ||
+    (session.user.role !== "ADMIN" && session.user.role !== "ADMIN_MASTER")
+  ) {
+    throw new Error("UNAUTHORIZED");
+  }
+  const isMaster = session.user.role === "ADMIN_MASTER";
+  return {
+    userId: session.user.id,
+    isMaster,
+    /** where-fragment para Partner: {} (master) ou { managerId } (gerente). */
+    partnerScope: isMaster ? {} : { managerId: session.user.id },
+  };
+}
+
+/** Sessão obrigatória do configurador (ADMIN_MASTER). */
+export async function requireMasterSession() {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "ADMIN_MASTER") {
     throw new Error("UNAUTHORIZED");
   }
   return { userId: session.user.id };

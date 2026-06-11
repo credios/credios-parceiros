@@ -14,21 +14,25 @@ import { ResendContractButton } from "./contract-actions";
 export const metadata: Metadata = { title: "Contratos" };
 
 export default async function AdminContractsPage() {
-  await requireAdminSession();
+  const { isMaster, partnerScope } = await requireAdminSession();
 
   const [templates, contracts] = await Promise.all([
-    prisma.contractTemplate.findMany({
-      orderBy: { version: "desc" },
-      select: {
-        id: true,
-        version: true,
-        name: true,
-        active: true,
-        createdAt: true,
-        _count: { select: { contracts: true } },
-      },
-    }),
+    // Templates são assunto do configurador — gerente nem carrega.
+    isMaster
+      ? prisma.contractTemplate.findMany({
+          orderBy: { version: "desc" },
+          select: {
+            id: true,
+            version: true,
+            name: true,
+            active: true,
+            createdAt: true,
+            _count: { select: { contracts: true } },
+          },
+        })
+      : Promise.resolve([]),
     prisma.contract.findMany({
+      where: { partner: partnerScope },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -48,61 +52,75 @@ export default async function AdminContractsPage() {
       <div className="animate-fade-up">
         <PageHeader
           title="Contratos"
-          description="Templates do contrato de parceria e os contratos emitidos para assinatura."
+          description={
+            isMaster
+              ? "Templates do contrato de parceria e os contratos emitidos para assinatura."
+              : "Contratos de parceria dos parceiros da sua carteira."
+          }
           action={
-            <ButtonLink href="/admin/contratos/novo-template" variant="outline">
-              <Plus size={16} aria-hidden />
-              Nova versão do template
-            </ButtonLink>
+            isMaster ? (
+              <ButtonLink href="/admin/contratos/novo-template" variant="outline">
+                <Plus size={16} aria-hidden />
+                Nova versão do template
+              </ButtonLink>
+            ) : undefined
           }
         />
       </div>
 
-      <h2 className="t-heading animate-fade-up-1 mb-4 text-credios-charcoal">Templates</h2>
-      {templates.length === 0 ? (
-        <p className="t-body animate-fade-up-1 text-neutral-500">
-          Nenhum template cadastrado — crie a primeira versão para emitir contratos.
-        </p>
-      ) : (
-        <Card unpadded className="animate-fade-up-1">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-xl text-sm">
-              <thead>
-                <tr className="border-b border-black/5 text-left">
-                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Versão</th>
-                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Nome</th>
-                  <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Situação</th>
-                  <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">
-                    Contratos
-                  </th>
-                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Criado em</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/5">
-                {templates.map((t) => (
-                  <tr key={t.id}>
-                    <td className="t-money px-5 py-3.5">v{t.version}</td>
-                    <td className="px-3 py-3.5 font-medium">{t.name}</td>
-                    <td className="px-3 py-3.5">
-                      {t.active ? (
-                        <Badge tone="success">Ativo</Badge>
-                      ) : (
-                        <Badge tone="neutral">Inativo</Badge>
-                      )}
-                    </td>
-                    <td className="t-money px-3 py-3.5 text-right">{t._count.contracts}</td>
-                    <td className="t-caption px-5 py-3.5 text-neutral-400 whitespace-nowrap">
-                      {formatDate(t.createdAt)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+      {isMaster && (
+        <>
+          <h2 className="t-heading animate-fade-up-1 mb-4 text-credios-charcoal">
+            Templates
+          </h2>
+          {templates.length === 0 ? (
+            <p className="t-body animate-fade-up-1 text-neutral-500">
+              Nenhum template cadastrado — crie a primeira versão para emitir contratos.
+            </p>
+          ) : (
+            <Card unpadded className="animate-fade-up-1">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-xl text-sm">
+                  <thead>
+                    <tr className="border-b border-black/5 text-left">
+                      <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Versão</th>
+                      <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Nome</th>
+                      <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Situação</th>
+                      <th className="t-eyebrow px-3 py-3.5 text-right text-neutral-400">
+                        Contratos
+                      </th>
+                      <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Criado em</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-black/5">
+                    {templates.map((t) => (
+                      <tr key={t.id}>
+                        <td className="t-money px-5 py-3.5">v{t.version}</td>
+                        <td className="px-3 py-3.5 font-medium">{t.name}</td>
+                        <td className="px-3 py-3.5">
+                          {t.active ? (
+                            <Badge tone="success">Ativo</Badge>
+                          ) : (
+                            <Badge tone="neutral">Inativo</Badge>
+                          )}
+                        </td>
+                        <td className="t-money px-3 py-3.5 text-right">
+                          {t._count.contracts}
+                        </td>
+                        <td className="t-caption px-5 py-3.5 text-neutral-400 whitespace-nowrap">
+                          {formatDate(t.createdAt)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          )}
+        </>
       )}
 
-      {contracts.some((c) => c.status === "PARTNER_SIGNED") && (
+      {isMaster && contracts.some((c) => c.status === "PARTNER_SIGNED") && (
         <Card
           tone="outlined"
           className="animate-fade-up-1 mt-8 border-credios-gold/30 bg-credios-gold-50"
@@ -124,7 +142,13 @@ export default async function AdminContractsPage() {
         </Card>
       )}
 
-      <h2 className="t-heading animate-fade-up-2 mt-10 mb-4 text-credios-charcoal">
+      <h2
+        className={
+          isMaster
+            ? "t-heading animate-fade-up-2 mt-10 mb-4 text-credios-charcoal"
+            : "t-heading animate-fade-up-1 mb-4 text-credios-charcoal"
+        }
+      >
         Contratos emitidos
       </h2>
       {contracts.length === 0 ? (
@@ -178,7 +202,7 @@ export default async function AdminContractsPage() {
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex flex-wrap items-center gap-2">
-                        {c.status === "PARTNER_SIGNED" && (
+                        {isMaster && c.status === "PARTNER_SIGNED" && (
                           <Link
                             href={`/admin/contratos/${c.id}/assinar`}
                             className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-credios-gold px-4 text-sm font-semibold text-credios-charcoal shadow-sm transition-[filter] duration-150 hover:brightness-110"

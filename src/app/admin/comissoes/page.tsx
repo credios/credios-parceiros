@@ -30,24 +30,24 @@ function periodStartsSP(): { month: Date; year: Date } {
 }
 
 export default async function AdminCommissionsPage() {
-  await requireAdminSession();
+  const { isMaster, partnerScope } = await requireAdminSession();
   const { month, year } = periodStartsSP();
 
   const [toPayAgg, paidMonthAgg, paidYearAgg, queue, history] = await Promise.all([
     prisma.commission.aggregate({
       _sum: { amount: true },
-      where: { status: "A_RECEBER" },
+      where: { status: "A_RECEBER", partner: partnerScope },
     }),
     prisma.commission.aggregate({
       _sum: { amount: true },
-      where: { status: "PAGA", paidAt: { gte: month } },
+      where: { status: "PAGA", paidAt: { gte: month }, partner: partnerScope },
     }),
     prisma.commission.aggregate({
       _sum: { amount: true },
-      where: { status: "PAGA", paidAt: { gte: year } },
+      where: { status: "PAGA", paidAt: { gte: year }, partner: partnerScope },
     }),
     prisma.commission.findMany({
-      where: { status: "A_RECEBER" },
+      where: { status: "A_RECEBER", partner: partnerScope },
       orderBy: { createdAt: "asc" },
       // Bytes (NF/comprovante) ficam fora da listagem — servidos por rota própria.
       omit: { invoice: true, paymentProof: true },
@@ -59,7 +59,7 @@ export default async function AdminCommissionsPage() {
       },
     }),
     prisma.commission.findMany({
-      where: { status: { in: ["PAGA", "CANCELADA"] } },
+      where: { status: { in: ["PAGA", "CANCELADA"] }, partner: partnerScope },
       orderBy: [{ paidAt: "desc" }, { updatedAt: "desc" }],
       take: 100,
       select: {
@@ -79,7 +79,11 @@ export default async function AdminCommissionsPage() {
       <div className="animate-fade-up">
         <PageHeader
           title="Comissões"
-          description="Fila de pagamento e histórico — pagar rápido é o coração da confiança do parceiro."
+          description={
+            isMaster
+              ? "Fila de pagamento e histórico — pagar rápido é o coração da confiança do parceiro."
+              : "Comissões da sua carteira — o pagamento é feito pela Credios."
+          }
           action={
             <ButtonLink href="/api/admin/commissions/export" variant="outline">
               <Download size={16} aria-hidden />
@@ -127,7 +131,9 @@ export default async function AdminCommissionsPage() {
                   <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Gerada em</th>
                   <th className="t-eyebrow px-3 py-3.5 text-neutral-400">Chave PIX</th>
                   <th className="t-eyebrow px-3 py-3.5 text-neutral-400">NF</th>
-                  <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Ações</th>
+                  {isMaster && (
+                    <th className="t-eyebrow px-5 py-3.5 text-neutral-400">Ações</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/5">
@@ -183,12 +189,14 @@ export default async function AdminCommissionsPage() {
                         <span className="t-caption text-neutral-400">—</span>
                       )}
                     </td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex flex-col items-start gap-2">
-                        <MarkPaidForm commissionId={c.id} />
-                        <CancelCommissionForm commissionId={c.id} />
-                      </div>
-                    </td>
+                    {isMaster && (
+                      <td className="px-5 py-3.5">
+                        <div className="flex flex-col items-start gap-2">
+                          <MarkPaidForm commissionId={c.id} />
+                          <CancelCommissionForm commissionId={c.id} />
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

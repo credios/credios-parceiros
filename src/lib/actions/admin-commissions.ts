@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdminSession } from "@/auth";
+import { requireMasterSession } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAdminAction } from "@/lib/audit";
 import { sendCommissionPaidEmail } from "@/lib/email/templates";
@@ -15,7 +15,7 @@ export async function markCommissionPaidAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId } = await requireMasterSession();
   const commissionId = String(formData.get("commissionId") ?? "");
   if (!commissionId) return { ok: false, error: "Comissão não identificada." };
 
@@ -100,7 +100,7 @@ export async function cancelCommissionAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId } = await requireMasterSession();
   const commissionId = String(formData.get("commissionId") ?? "");
   if (!commissionId) return { ok: false, error: "Comissão não identificada." };
 

@@ -81,6 +81,7 @@ export const partnerSchema = z.object({
   email: z.string().email("Email inválido.").transform((e) => e.toLowerCase().trim()),
   phone: phoneSchema,
   archetype: z.enum(archetypeValues),
+  managerId: z.string().min(1, "Selecione o gerente responsável pela carteira."),
   city: z.string().optional(),
   state: z.enum(ufValues).optional().or(z.literal("")).transform((v) => v || undefined),
   commissionRate: z

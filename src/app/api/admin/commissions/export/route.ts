@@ -21,11 +21,16 @@ function escapeCsv(value: string): string {
 
 export async function GET() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") {
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "ADMIN_MASTER")) {
     return new Response("Unauthorized", { status: 401 });
   }
 
+  // Gerente exporta só a própria carteira; o configurador exporta tudo.
+  const partnerScope =
+    session.user.role === "ADMIN_MASTER" ? {} : { managerId: session.user.id };
+
   const commissions = await prisma.commission.findMany({
+    where: { partner: partnerScope },
     orderBy: { createdAt: "desc" },
     select: {
       baseAmount: true,

@@ -57,13 +57,33 @@ export default async function InvitePage({
     include: { partner: true },
   });
 
-  if (
-    !user ||
-    user.role !== "PARTNER" ||
-    !user.partner ||
-    !user.inviteExpiry ||
-    user.inviteExpiry <= new Date()
-  ) {
+  if (!user || !user.inviteExpiry || user.inviteExpiry <= new Date()) {
+    return <InvalidInvite />;
+  }
+
+  // Convite de GERENTE do programa (admin): boas-vindas simples, sem contrato.
+  if (user.role === "ADMIN" || user.role === "ADMIN_MASTER") {
+    return (
+      <div className="mx-auto max-w-lg px-4 sm:px-6 py-12 sm:py-16">
+        <p className="t-eyebrow text-credios-gold-700 text-center">
+          Equipe Credios
+        </p>
+        <h1 className="t-display-md text-credios-charcoal text-center mt-3">
+          Bem-vindo(a), {user.name.split(" ")[0]}
+        </h1>
+        <p className="t-body text-neutral-500 text-center mt-3">
+          Você foi cadastrado(a) como gerente do programa de parcerias
+          ({user.email}). Crie sua senha para acessar o painel e gerenciar a sua
+          carteira de parceiros.
+        </p>
+        <Card tone="white" className="mt-8">
+          <AcceptInviteForm token={token} />
+        </Card>
+      </div>
+    );
+  }
+
+  if (user.role !== "PARTNER" || !user.partner) {
     return <InvalidInvite />;
   }
 

@@ -9,7 +9,14 @@ import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { maskCPF, maskCNPJ, maskPhone, maskRate } from "../../_components/masks";
 
-export function PartnerForm() {
+export function PartnerForm({
+  selfId,
+  managers,
+}: {
+  selfId: string;
+  /** Lista de gerentes — presente só para o configurador (master). */
+  managers?: { id: string; name: string }[];
+}) {
   const [state, formAction] = useActionState(createPartnerAction, null);
   const [personType, setPersonType] = useState<"PF" | "PJ">("PF");
   const [document, setDocument] = useState("");
@@ -155,6 +162,25 @@ export function PartnerForm() {
               ))}
             </Select>
           </Field>
+          {managers ? (
+            <Field
+              label="Gerente responsável"
+              htmlFor="managerId"
+              required
+              error={errors.managerId}
+              hint="O parceiro entra na carteira deste gerente."
+            >
+              <Select id="managerId" name="managerId" defaultValue={selfId} required>
+                {managers.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          ) : (
+            <input type="hidden" name="managerId" value={selfId} />
+          )}
           <div className="grid grid-cols-[1fr_6rem] gap-3">
             <Field label="Cidade" htmlFor="city" error={errors.city}>
               <Input id="city" name="city" />

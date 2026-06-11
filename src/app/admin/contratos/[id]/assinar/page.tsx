@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Download, FileSignature } from "lucide-react";
 import { requireAdminSession } from "@/auth";
@@ -19,7 +19,9 @@ export default async function AdminSignContractPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdminSession();
+  // Contra-assinatura é ato do representante legal — só o configurador.
+  const { isMaster } = await requireAdminSession();
+  if (!isMaster) redirect("/admin/contratos");
   const { id } = await params;
 
   const contract = await prisma.contract.findUnique({

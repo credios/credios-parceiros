@@ -10,10 +10,11 @@ import {
   updatePartnerRateAction,
   updatePartnerAction,
 } from "@/lib/actions/admin-partners";
+import { reassignPartnerManagerAction } from "@/lib/actions/admin-team";
 import type { ActionState } from "@/lib/actions/admin-helpers";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { Field, Input, Textarea } from "@/components/ui/field";
+import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { maskCpfCnpj, maskPhone, maskRate } from "../../_components/masks";
 
 function useActionToast(state: ActionState, onSuccess?: () => void) {
@@ -108,6 +109,51 @@ export function RateForm({
           />
           <SubmitButton variant="outline" pendingLabel="Salvando…">
             Salvar taxa
+          </SubmitButton>
+        </div>
+      </Field>
+    </form>
+  );
+}
+
+/** Reatribuição de carteira — exclusivo do configurador (master). */
+export function ReassignManagerForm({
+  partnerId,
+  currentManagerId,
+  managers,
+}: {
+  partnerId: string;
+  currentManagerId: string | null;
+  managers: { id: string; name: string }[];
+}) {
+  const [state, formAction] = useActionState(reassignPartnerManagerAction, null);
+  useActionToast(state);
+  return (
+    <form action={formAction} className="flex flex-col gap-3">
+      <input type="hidden" name="partnerId" value={partnerId} />
+      <Field
+        label="Gerente responsável"
+        htmlFor="reassign-managerId"
+        error={state?.fieldErrors?.managerId}
+        hint="Mover o parceiro transfere leads, comissões e contratos para a visão do novo gerente."
+      >
+        <div className="flex gap-2">
+          <Select
+            id="reassign-managerId"
+            name="managerId"
+            defaultValue={currentManagerId ?? ""}
+          >
+            <option value="" disabled>
+              Selecione…
+            </option>
+            {managers.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </Select>
+          <SubmitButton variant="outline" pendingLabel="Movendo…">
+            Mover
           </SubmitButton>
         </div>
       </Field>

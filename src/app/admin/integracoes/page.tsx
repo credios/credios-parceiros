@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import {
   Plug,
   Info,
@@ -36,7 +37,9 @@ function prettyJson(value: unknown): string {
 }
 
 export default async function AdminIntegrationsPage() {
-  await requireAdminSession();
+  // Integração com o CRM é assunto do configurador.
+  const { isMaster } = await requireAdminSession();
+  if (!isMaster) redirect("/admin");
 
   const dayAgo = oneDayAgo();
 

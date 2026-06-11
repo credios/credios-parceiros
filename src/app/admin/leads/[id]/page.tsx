@@ -33,11 +33,12 @@ export default async function AdminLeadDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdminSession();
+  const { isMaster, partnerScope } = await requireAdminSession();
   const { id } = await params;
 
-  const lead = await prisma.lead.findUnique({
-    where: { id },
+  // Escopo de carteira: gerente só abre leads de parceiros que são dele.
+  const lead = await prisma.lead.findFirst({
+    where: { id, partner: partnerScope },
     include: {
       partner: { select: { id: true, legalName: true } },
       commission: true,
@@ -277,22 +278,24 @@ export default async function AdminLeadDetailPage({
                 <dd className="font-mono text-xs">{lead.crmLeadId ?? "—"}</dd>
               </div>
             </dl>
-            {lead.crmSyncStatus !== "SYNCED" && (
+            {isMaster && lead.crmSyncStatus !== "SYNCED" && (
               <div className="mt-4">
                 <ReprocessSyncButton leadId={lead.id} />
               </div>
             )}
           </Card>
 
-          {/* Zona de risco — exclusão definitiva (testes/cadastros errados) */}
-          <Card tone="outlined" className="border-status-danger/30">
-            <h2 className="t-eyebrow text-status-danger mb-3">Zona de risco</h2>
-            <DeleteLeadForm
-              leadId={lead.id}
-              hasCommission={Boolean(lead.commission)}
-              syncedWithCrm={Boolean(lead.crmLeadId)}
-            />
-          </Card>
+          {/* Zona de risco — exclusão definitiva é ato do configurador */}
+          {isMaster && (
+            <Card tone="outlined" className="border-status-danger/30">
+              <h2 className="t-eyebrow text-status-danger mb-3">Zona de risco</h2>
+              <DeleteLeadForm
+                leadId={lead.id}
+                hasCommission={Boolean(lead.commission)}
+                syncedWithCrm={Boolean(lead.crmLeadId)}
+              />
+            </Card>
+          )}
         </div>
       </div>
     </div>

@@ -27,7 +27,7 @@ export const authConfig = {
     },
     session({ session, token }) {
       session.user.id = token.id as string;
-      session.user.role = token.role as "ADMIN" | "PARTNER";
+      session.user.role = token.role as "ADMIN_MASTER" | "ADMIN" | "PARTNER";
       session.user.partnerId = (token.partnerId as string | null) ?? null;
       return session;
     },
@@ -37,7 +37,7 @@ export const authConfig = {
 
       if (pathname.startsWith("/admin")) {
         if (!user) return false; // redireciona para /entrar
-        if (user.role !== "ADMIN")
+        if (user.role !== "ADMIN" && user.role !== "ADMIN_MASTER")
           return Response.redirect(new URL("/app", request.nextUrl));
         return true;
       }

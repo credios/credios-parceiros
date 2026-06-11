@@ -2,13 +2,15 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
-import { requireAdminSession } from "@/auth";
+import { requireAdminSession, requireMasterSession } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAdminAction } from "@/lib/audit";
 import { generateToken } from "@/lib/tokens";
 import { sendInviteEmail } from "@/lib/email/templates";
+import { addPartnerToAudience } from "@/lib/email/audience";
 import { partnerSchema } from "@/lib/validators";
 import {
   toFieldErrors,
@@ -26,7 +28,7 @@ export async function createPartnerAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId, isMaster } = await requireAdminSession();
 
   const parsed = partnerSchema.safeParse({
     personType: formData.get("personType"),
@@ -37,6 +39,9 @@ export async function createPartnerAction(
     email: formData.get("email"),
     phone: formData.get("phone"),
     archetype: formData.get("archetype"),
+    // Gerente nunca escolhe: o parceiro nasce na própria carteira,
+    // ignorando qualquer managerId vindo do client (segurança).
+    managerId: isMaster ? formData.get("managerId") : userId,
     city: optionalField(formData, "city"),
     state: formData.get("state") ?? "",
     commissionRate: optionalField(formData, "commissionRate") ?? "",
@@ -46,6 +51,17 @@ export async function createPartnerAction(
     return { ok: false, fieldErrors: toFieldErrors(parsed.error) };
   }
   const data = parsed.data;
+
+  const manager = await prisma.user.findFirst({
+    where: { id: data.managerId, role: { in: ["ADMIN", "ADMIN_MASTER"] } },
+    select: { id: true },
+  });
+  if (!manager) {
+    return {
+      ok: false,
+      fieldErrors: { managerId: "Selecione um gerente válido para a carteira." },
+    };
+  }
 
   if (data.personType === "PJ" && (!data.repName || !data.repDocument)) {
     return {
@@ -92,6 +108,7 @@ export async function createPartnerAction(
         state: data.state ?? null,
         commissionRate: new Prisma.Decimal(data.commissionRate.toFixed(2)),
         notes: data.notes ?? null,
+        managerId: data.managerId,
       },
     });
     await tx.user.create({
@@ -108,11 +125,14 @@ export async function createPartnerAction(
   });
 
   await sendInviteEmail({ to: data.email, partnerName: data.legalName, token });
+  // Parceiro entra na lista de newsletter do Resend fora do caminho crítico.
+  after(() => addPartnerToAudience({ name: data.legalName, email: data.email }));
   await logAdminAction({
     actorId: userId,
     action: "PARTNER_CREATED",
     entity: "Partner",
     entityId: partner.id,
+    metadata: { managerId: data.managerId },
   });
 
   revalidatePath("/admin/parceiros");
@@ -123,12 +143,12 @@ export async function resendInviteAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId, partnerScope } = await requireAdminSession();
   const partnerId = String(formData.get("partnerId") ?? "");
   if (!partnerId) return { ok: false, error: "Parceiro não identificado." };
 
   const user = await prisma.user.findFirst({
-    where: { partnerId },
+    where: { partnerId, partner: partnerScope },
     include: { partner: true },
   });
   if (!user?.partner) {
@@ -164,7 +184,7 @@ export async function suspendPartnerAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId } = await requireMasterSession();
   const partnerId = String(formData.get("partnerId") ?? "");
   if (!partnerId) return { ok: false, error: "Parceiro não identificado." };
 
@@ -195,7 +215,7 @@ export async function reactivatePartnerAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId } = await requireMasterSession();
   const partnerId = String(formData.get("partnerId") ?? "");
   if (!partnerId) return { ok: false, error: "Parceiro não identificado." };
 
@@ -226,7 +246,7 @@ export async function updatePartnerRateAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId } = await requireMasterSession();
   const partnerId = String(formData.get("partnerId") ?? "");
   if (!partnerId) return { ok: false, error: "Parceiro não identificado." };
 
@@ -269,7 +289,7 @@ export async function updatePartnerAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId, partnerScope } = await requireAdminSession();
   const partnerId = String(formData.get("partnerId") ?? "");
   if (!partnerId) return { ok: false, error: "Parceiro não identificado." };
 
@@ -285,7 +305,9 @@ export async function updatePartnerAction(
   }
   const data = parsed.data;
 
-  const partner = await prisma.partner.findUnique({ where: { id: partnerId } });
+  const partner = await prisma.partner.findFirst({
+    where: { id: partnerId, ...partnerScope },
+  });
   if (!partner) return { ok: false, error: "Parceiro não encontrado." };
 
   const [docConflict, emailConflict] = await Promise.all([

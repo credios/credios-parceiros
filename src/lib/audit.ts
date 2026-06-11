@@ -19,8 +19,19 @@ export async function logAdminAction(opts: {
     | "CONTRACT_RESENT"
     | "CONTRACT_ADMIN_SIGNED"
     | "TEMPLATE_UPDATED"
-    | "INTEGRATION_REPROCESSED";
-  entity: "Lead" | "Commission" | "Partner" | "Contract" | "ContractTemplate" | "IntegrationLog";
+    | "INTEGRATION_REPROCESSED"
+    | "MANAGER_CREATED"
+    | "MANAGER_INVITE_RESENT"
+    | "MANAGER_DELETED"
+    | "PARTNER_MANAGER_CHANGED";
+  entity:
+    | "Lead"
+    | "Commission"
+    | "Partner"
+    | "Contract"
+    | "ContractTemplate"
+    | "IntegrationLog"
+    | "User";
   entityId: string;
   metadata?: Prisma.InputJsonValue;
 }) {

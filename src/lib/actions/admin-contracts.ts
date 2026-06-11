@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
-import { requireAdminSession } from "@/auth";
+import { requireAdminSession, requireMasterSession } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAdminAction } from "@/lib/audit";
 import { buildSignedPdf } from "@/lib/contracts/pdf";
@@ -23,7 +23,7 @@ export async function createTemplateAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId } = await requireMasterSession();
 
   const parsed = templateSchema.safeParse({
     name: formData.get("name"),
@@ -72,7 +72,7 @@ export async function adminSignContractAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId } = await requireMasterSession();
   const contractId = String(formData.get("contractId") ?? "");
   if (!contractId) return { ok: false, error: "Contrato não identificado." };
   if (formData.get("accept") !== "on") {
@@ -217,12 +217,13 @@ export async function resendContractAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const { userId } = await requireAdminSession();
+  const { userId, partnerScope } = await requireAdminSession();
   const contractId = String(formData.get("contractId") ?? "");
   if (!contractId) return { ok: false, error: "Contrato não identificado." };
 
-  const contract = await prisma.contract.findUnique({
-    where: { id: contractId },
+  // Ownership: gerente só reenvia contratos de parceiros da própria carteira.
+  const contract = await prisma.contract.findFirst({
+    where: { id: contractId, partner: partnerScope },
     include: { partner: { select: { legalName: true } } },
   });
   if (!contract) return { ok: false, error: "Contrato não encontrado." };
