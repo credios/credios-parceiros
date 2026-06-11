@@ -38,6 +38,10 @@ const BLUE_50 = rgb(238 / 255, 243 / 255, 253 / 255); // credios-blue-50
 const WARNING = rgb(138 / 255, 97 / 255, 22 / 255); // status-warning
 const WARNING_BG = rgb(250 / 255, 240 / 255, 215 / 255); // status-warning-bg
 const LINE = rgb(214 / 255, 211 / 255, 202 / 255); // neutral-200
+const GOLD = rgb(212 / 255, 163 / 255, 81 / 255); // credios-gold
+const GOLD_700 = rgb(160 / 255, 121 / 255, 48 / 255); // credios-gold-700
+const IVORY = rgb(248 / 255, 246 / 255, 240 / 255); // credios-ivory
+const ZEBRA = rgb(251 / 255, 250 / 255, 247 / 255); // linha alternada
 
 // ---------------------------------------------------------------------------
 // Texto: entidades, WinAnsi e word wrap
@@ -249,7 +253,15 @@ export async function renderContractPdf(
     const logoW = (logo.width / logo.height) * logoH;
     w.y -= logoH;
     w.page.drawImage(logo, { x: MARGIN, y: w.y, width: logoW, height: logoH });
-    w.y -= 28;
+    // Filete dourado sob o cabeçalho — identidade do Assinador Credios
+    w.y -= 14;
+    w.page.drawLine({
+      start: { x: MARGIN, y: w.y },
+      end: { x: PAGE_W - MARGIN, y: w.y },
+      thickness: 1.5,
+      color: GOLD,
+    });
+    w.y -= 22;
   } catch {
     // sem logo — segue sem quebrar a geração
   }
@@ -325,6 +337,12 @@ function drawFooters(doc: PDFDocument, font: PDFFont, verifyCode?: string): void
   const pages = doc.getPages();
   const total = pages.length;
   pages.forEach((page, i) => {
+    page.drawLine({
+      start: { x: MARGIN, y: FOOTER_Y + 14 },
+      end: { x: PAGE_W - MARGIN, y: FOOTER_Y + 14 },
+      thickness: 0.5,
+      color: LINE,
+    });
     const label = `Página ${i + 1} de ${total}`;
     const lw = font.widthOfTextAtSize(label, 8);
     page.drawText(label, {
@@ -334,15 +352,14 @@ function drawFooters(doc: PDFDocument, font: PDFFont, verifyCode?: string): void
       font,
       color: FAINT,
     });
-    if (verifyCode) {
-      page.drawText(sanitizeWinAnsi(`Verificação: ${verifyCode}`), {
-        x: MARGIN,
-        y: FOOTER_Y,
-        size: 8,
-        font,
-        color: FAINT,
-      });
-    }
+    page.drawText(
+      sanitizeWinAnsi(
+        verifyCode
+          ? `Assinador Credios · Verificação: ${verifyCode}`
+          : "Assinador Credios"
+      ),
+      { x: MARGIN, y: FOOTER_Y, size: 8, font, color: FAINT }
+    );
   });
 }
 
@@ -424,80 +441,136 @@ export async function buildSignedPdf(
 
   // --- Carimbos de assinatura na última página do documento original ------
   const lastPage = doc.getPage(doc.getPageCount() - 1);
-  const stampH = 92;
-  const stampY = FOOTER_Y + 16;
-  const gap = 10;
+  const stampH = 100;
+  const stampY = FOOTER_Y + 24;
+  const gap = 12;
   const n = Math.max(opts.signers.length, 1);
   const boxW = (CONTENT_W - gap * (n - 1)) / n;
 
+  // Rótulo da seção de assinaturas
+  const sectionLabel = "ASSINATURAS ELETRÔNICAS";
+  lastPage.drawText(sanitizeWinAnsi(sectionLabel), {
+    x: MARGIN,
+    y: stampY + stampH + 10,
+    size: 7.5,
+    font: helvBold,
+    color: FAINT,
+  });
+  const labelW = helvBold.widthOfTextAtSize(sectionLabel, 7.5);
+  lastPage.drawLine({
+    start: { x: MARGIN + labelW + 8, y: stampY + stampH + 13 },
+    end: { x: PAGE_W - MARGIN, y: stampY + stampH + 13 },
+    thickness: 0.5,
+    color: LINE,
+  });
+
   opts.signers.forEach((signer, i) => {
     const x = MARGIN + i * (boxW + gap);
+    const accent = i === 0 ? BLUE : GOLD;
+    const accentText = i === 0 ? BLUE : GOLD_700;
+    // Cartão do signatário: fundo claro + borda sutil + barra de acento no topo
     lastPage.drawRectangle({
       x,
       y: stampY,
       width: boxW,
       height: stampH,
-      color: BLUE_50,
-      borderColor: BLUE,
-      borderWidth: 1,
+      color: IVORY,
+      borderColor: LINE,
+      borderWidth: 0.75,
     });
-    const stampLines: { text: string; font: PDFFont; size: number }[] = [
-      { text: sanitizeWinAnsi(signer.role), font: helvBold, size: 7.5 },
-      {
-        text: sanitizeWinAnsi(`Assinado eletronicamente por ${signer.name}`),
-        font: helvBold,
-        size: 9,
-      },
-      { text: sanitizeWinAnsi(`CPF/CNPJ ${signer.document}`), font: helv, size: 8 },
-      { text: sanitizeWinAnsi(signer.email), font: helv, size: 8 },
-      {
-        text: sanitizeWinAnsi(`${formatBrasilia(signer.signedAt)} (Brasília)`),
-        font: helv,
-        size: 8,
-      },
-    ];
-    let sy = stampY + stampH - 16;
-    for (const line of stampLines) {
-      const wrapped = wrapText(line.text, line.font, line.size, boxW - 24);
-      for (const text of wrapped) {
-        lastPage.drawText(text, {
-          x: x + 12,
-          y: sy,
-          size: line.size,
-          font: line.font,
-          color: line.font === helvBold ? INK : MUTED,
-        });
-        sy -= line.size + 4.5;
+    lastPage.drawRectangle({
+      x,
+      y: stampY + stampH - 4,
+      width: boxW,
+      height: 4,
+      color: accent,
+    });
+
+    let sy = stampY + stampH - 20;
+    const draw = (
+      text: string,
+      font: PDFFont,
+      size: number,
+      color: RGB,
+      extraGap = 0
+    ) => {
+      for (const line of wrapText(sanitizeWinAnsi(text), font, size, boxW - 28)) {
+        lastPage.drawText(line, { x: x + 14, y: sy, size, font, color });
+        sy -= size + 4;
       }
-    }
+      sy -= extraGap;
+    };
+
+    draw(signer.role, helvBold, 7, accentText, 3);
+    draw(signer.name, helvBold, 9.5, INK, 4);
+    draw(`CPF/CNPJ ${signer.document}`, helv, 8, MUTED);
+    draw(signer.email, helv, 8, MUTED);
+    draw(`${formatBrasilia(signer.signedAt)} · horário de Brasília`, helv, 8, MUTED);
   });
-  // (o código de verificação já aparece no rodapé de todas as páginas)
 
   // --- Página(s) de manifesto de auditoria --------------------------------
   const w: Writer = { doc, page: doc.addPage([PAGE_W, PAGE_H]), y: PAGE_H - MARGIN };
 
-  drawParagraph(w, sanitizeWinAnsi("Manifesto de assinatura — Assinador Credios"), {
+  // Cabeçalho do manifesto: logo + filete dourado (identidade do Assinador)
+  try {
+    const logoBytes = fs.readFileSync(
+      path.join(process.cwd(), "public", "credios-logo.png")
+    );
+    const logo = await doc.embedPng(logoBytes);
+    const logoH = 20;
+    const logoW = (logo.width / logo.height) * logoH;
+    w.y -= logoH;
+    w.page.drawImage(logo, { x: MARGIN, y: w.y, width: logoW, height: logoH });
+    const tag = "ASSINADOR CREDIOS";
+    const tagW = helvBold.widthOfTextAtSize(tag, 7.5);
+    w.page.drawText(tag, {
+      x: PAGE_W - MARGIN - tagW,
+      y: w.y + 6,
+      size: 7.5,
+      font: helvBold,
+      color: GOLD_700,
+    });
+    w.y -= 12;
+    w.page.drawLine({
+      start: { x: MARGIN, y: w.y },
+      end: { x: PAGE_W - MARGIN, y: w.y },
+      thickness: 1.5,
+      color: GOLD,
+    });
+    w.y -= 22;
+  } catch {
+    // sem logo — segue
+  }
+
+  drawParagraph(w, sanitizeWinAnsi("Manifesto de assinatura"), {
     font: helvBold,
-    size: 14,
-    lineHeight: 18,
+    size: 16,
+    lineHeight: 20,
     spacingAfter: 4,
   });
   drawParagraph(
     w,
     sanitizeWinAnsi(
-      "Registro de auditoria gerado automaticamente no momento da assinatura."
+      "Registro de auditoria gerado automaticamente pela plataforma no momento de cada assinatura."
     ),
-    { font: helv, size: 9, lineHeight: 13, color: FAINT, spacingAfter: 14 }
+    { font: helv, size: 9, lineHeight: 13, color: FAINT, spacingAfter: 16 }
   );
 
-  const section = (title: string) =>
-    drawParagraph(w, sanitizeWinAnsi(title), {
-      font: helvBold,
-      size: 11,
-      lineHeight: 15,
-      spacingBefore: 8,
-      spacingAfter: 4,
+  // Título de seção com filete que completa a largura
+  const section = (title: string) => {
+    ensure(w, 26);
+    w.y -= 14;
+    const t = sanitizeWinAnsi(title.toUpperCase());
+    w.page.drawText(t, { x: MARGIN, y: w.y, size: 8.5, font: helvBold, color: BLUE });
+    const tw = helvBold.widthOfTextAtSize(t, 8.5);
+    w.page.drawLine({
+      start: { x: MARGIN + tw + 8, y: w.y + 3 },
+      end: { x: PAGE_W - MARGIN, y: w.y + 3 },
+      thickness: 0.5,
+      color: LINE,
     });
+    w.y -= 10;
+  };
   const field = (label: string, value: string) =>
     drawParagraph(w, sanitizeWinAnsi(`${label}: ${value}`), {
       font: helv,
@@ -509,9 +582,13 @@ export async function buildSignedPdf(
 
   section(opts.signers.length > 1 ? "Signatários" : "Signatário");
   opts.signers.forEach((signer, i) => {
-    if (i > 0) w.y -= 6;
-    field("Papel", signer.role);
-    field("Nome", signer.name);
+    if (i > 0) w.y -= 8;
+    drawParagraph(w, sanitizeWinAnsi(`${signer.role} — ${signer.name}`), {
+      font: helvBold,
+      size: 10,
+      lineHeight: 14,
+      spacingAfter: 2,
+    });
     field("CPF/CNPJ", signer.document);
     field("Email", signer.email);
     field("Verificação de identidade", signer.verification);
@@ -521,15 +598,31 @@ export async function buildSignedPdf(
   section("Integridade do documento");
   drawParagraph(
     w,
-    sanitizeWinAnsi("Hash SHA-256 do documento original (antes da assinatura):"),
-    { font: helv, size: 9.5, lineHeight: 14, color: MUTED }
+    sanitizeWinAnsi("Hash SHA-256 do documento original (antes das assinaturas):"),
+    { font: helv, size: 9.5, lineHeight: 14, color: MUTED, spacingAfter: 3 }
   );
-  drawParagraph(w, originalHash, {
-    font: courier,
-    size: 8.5,
-    lineHeight: 12,
-    spacingAfter: 4,
-  });
+  // Hash em bloco destacado (fundo claro, fonte mono)
+  {
+    const hashBoxH = 22;
+    ensure(w, hashBoxH + 4);
+    w.page.drawRectangle({
+      x: MARGIN,
+      y: w.y - hashBoxH,
+      width: CONTENT_W,
+      height: hashBoxH,
+      color: IVORY,
+      borderColor: LINE,
+      borderWidth: 0.5,
+    });
+    w.page.drawText(originalHash, {
+      x: MARGIN + 10,
+      y: w.y - hashBoxH + 7,
+      size: 8.5,
+      font: courier,
+      color: INK,
+    });
+    w.y -= hashBoxH + 8;
+  }
   field("Código de verificação", opts.verifyCode);
   field("Verificação pública", `${APP_URL}/verificar/${opts.verifyCode}`);
 
@@ -574,29 +667,31 @@ function drawEventsTable(
   ];
 
   const drawHeader = () => {
-    ensure(w, lineHeight + 6);
+    ensure(w, lineHeight + 8);
+    // Faixa de fundo do cabeçalho da tabela
+    w.page.drawRectangle({
+      x: MARGIN,
+      y: w.y - lineHeight - 4,
+      width: CONTENT_W,
+      height: lineHeight + 6,
+      color: BLUE_50,
+    });
     w.y -= lineHeight;
     for (const col of cols) {
       w.page.drawText(sanitizeWinAnsi(col.label), {
-        x: col.x,
+        x: col.x + 2,
         y: w.y,
         size,
         font: helvBold,
         color: INK,
       });
     }
-    w.y -= 4;
-    w.page.drawLine({
-      start: { x: MARGIN, y: w.y },
-      end: { x: PAGE_W - MARGIN, y: w.y },
-      thickness: 0.5,
-      color: LINE,
-    });
-    w.y -= 4;
+    w.y -= 8;
   };
 
   drawHeader();
 
+  let rowIndex = 0;
   for (const ev of events) {
     const ua = ev.userAgent
       ? ev.userAgent.length > 110
@@ -617,13 +712,23 @@ function drawEventsTable(
       newPage(w);
       drawHeader();
     }
+    // Zebra: linhas pares com fundo suave
+    if (rowIndex % 2 === 1) {
+      w.page.drawRectangle({
+        x: MARGIN,
+        y: w.y - rowH + 2,
+        width: CONTENT_W,
+        height: rowH,
+        color: ZEBRA,
+      });
+    }
     for (let li = 0; li < rowLines; li++) {
       w.y -= lineHeight;
       cells.forEach((cellLines, ci) => {
         const text = cellLines[li];
         if (!text) return;
         w.page.drawText(text, {
-          x: cols[ci].x,
+          x: cols[ci].x + 2,
           y: w.y,
           size,
           font: helv,
@@ -632,5 +737,6 @@ function drawEventsTable(
       });
     }
     w.y -= 4;
+    rowIndex++;
   }
 }

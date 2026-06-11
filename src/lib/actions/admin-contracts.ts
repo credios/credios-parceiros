@@ -86,6 +86,8 @@ export async function adminSignContractAction(
     prisma.contract.findUnique({
       where: { id: contractId },
       include: { partner: true },
+      // bytes do PDF original são necessários aqui (geração do PDF final)
+      omit: { pdfUnsigned: false },
     }),
     prisma.user.findUniqueOrThrow({
       where: { id: userId },

@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, FileSignature } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Download, FileSignature } from "lucide-react";
 import { requireAdminSession } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatDateTime, formatDocument } from "@/lib/format";
+import { formatDateExtenso, mergeTemplate } from "@/lib/contracts/merge";
 import { CREDIOS } from "@/lib/credios";
 import { Card } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
@@ -23,7 +24,7 @@ export default async function AdminSignContractPage({
 
   const contract = await prisma.contract.findUnique({
     where: { id },
-    include: { partner: true },
+    include: { partner: true, template: true },
   });
   if (!contract) notFound();
 
@@ -113,12 +114,33 @@ export default async function AdminSignContractPage({
         </dl>
       </Card>
 
-      {/* Documento na íntegra (PDF que o parceiro assinou) */}
+      {/* Documento na íntegra — mesmo conteúdo mesclado do PDF assinado */}
       <div className="mt-6 overflow-hidden rounded-lg border border-black/5 shadow-md animate-fade-up-2 bg-white">
-        <iframe
-          src={`/api/contracts/${contract.id}/download#view=FitH`}
-          title="Contrato de parceria — documento completo"
-          className="h-[70vh] w-full"
+        <div className="flex items-center justify-between border-b border-black/5 px-4 sm:px-6 py-3">
+          <p className="t-caption text-neutral-500">Documento na íntegra</p>
+          <a
+            href={`/api/contracts/${contract.id}/download`}
+            className="inline-flex min-h-11 items-center gap-1.5 px-2 text-sm font-semibold text-credios-blue hover:text-credios-blue-700 transition-colors duration-150"
+          >
+            <Download size={14} aria-hidden />
+            Baixar PDF
+          </a>
+        </div>
+        <article
+          className="max-h-[60vh] overflow-y-auto px-5 sm:px-8 py-6 [&_h1]:t-heading [&_h1]:text-credios-charcoal [&_h2]:font-semibold [&_h2]:text-credios-charcoal [&_h2]:mt-6 [&_h2]:mb-2 [&_p]:t-body [&_p]:text-neutral-600 [&_p]:mb-3"
+          dangerouslySetInnerHTML={{
+            __html: mergeTemplate(contract.template.bodyHtml, {
+              partner: contract.partner,
+              rate: Number(
+                contract.partner.commissionRate.toString()
+              ).toLocaleString("pt-BR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }),
+              date: formatDateExtenso(contract.sentAt ?? contract.createdAt),
+              verifyCode: contract.verifyCode,
+            }),
+          }}
         />
       </div>
 

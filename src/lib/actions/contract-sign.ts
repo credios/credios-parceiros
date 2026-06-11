@@ -139,9 +139,8 @@ export async function signContractAction(token: string): Promise<ActionResult> {
   if (!contract.otpVerified) {
     return { ok: false, error: "Confirme sua identidade com o código antes de assinar." };
   }
-  if (!contract.pdfUnsigned) {
-    return { ok: false, error: "Documento indisponível — contate a Credios." };
-  }
+  // O PDF final só é gerado na contra-assinatura da Credios — aqui basta
+  // registrar a assinatura do parceiro e liberar o acesso.
 
   const { ip, userAgent } = await requestMeta();
 
