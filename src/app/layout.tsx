@@ -24,6 +24,14 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_APP_URL ?? "https://parceiros.credios.com.br"
   ),
   robots: { index: false, follow: false },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
