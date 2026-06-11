@@ -1,6 +1,7 @@
 /**
- * MINUTA SUJEITA A REVISÃO JURÍDICA — texto final será fornecido pelo
- * responsável jurídico da Credios. Estrutura e merge fields são definitivos.
+ * Texto aprovado pelo responsável jurídico da Credios (Gabriel Meirelles)
+ * em 11/06/2026 — comissão de 1,50%, pagamento em até 10 dias úteis.
+ * Novas versões podem ser criadas em /admin/contratos/novo-template.
  *
  * Merge fields disponíveis:
  * {{partner.legalName}} {{partner.document}} {{partner.personType}}
@@ -11,8 +12,6 @@
  */
 export const CONTRACT_TEMPLATE_V1 = `
 <h1>Contrato de Parceria Comercial — Programa de Parceiros Credios</h1>
-
-<p class="draft-notice">MINUTA SUJEITA A REVISÃO JURÍDICA</p>
 
 <p><strong>CONTRATADA:</strong> {{credios.razaoSocial}}, pessoa jurídica de direito privado, inscrita no CNPJ sob nº {{credios.cnpj}}, com sede na {{credios.endereco}}, neste ato representada na forma de seu contrato social ("CREDIOS").</p>
 
