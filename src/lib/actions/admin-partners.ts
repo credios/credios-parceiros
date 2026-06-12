@@ -10,7 +10,7 @@ import { prisma } from "@/lib/prisma";
 import { logAdminAction } from "@/lib/audit";
 import { generateToken } from "@/lib/tokens";
 import { sendInviteEmail } from "@/lib/email/templates";
-import { addPartnerToAudience } from "@/lib/email/audience";
+import { addPartnerToAudience, removePartnerFromAudience } from "@/lib/email/audience";
 import { partnerSchema } from "@/lib/validators";
 import {
   toFieldErrors,
@@ -359,4 +359,72 @@ export async function updatePartnerAction(
   revalidatePath(`/admin/parceiros/${partnerId}`);
   revalidatePath("/admin/parceiros");
   return { ok: true, message: "Dados cadastrais atualizados." };
+}
+
+/**
+ * Exclusão DEFINITIVA de um parceiro (master). Para cadastros errados/testes:
+ * libera o email para reuso (ex.: recadastrar a pessoa como gerente).
+ * - Bloqueada se houver QUALQUER comissão (trilha financeira intocável).
+ * - Apaga em transação: leads (histórico em cascade), contratos (auditoria
+ *   em cascade), o usuário de acesso e o parceiro. Remove da audience.
+ */
+export async function deletePartnerAction(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { userId } = await requireMasterSession();
+  const partnerId = String(formData.get("partnerId") ?? "");
+  const confirm = String(formData.get("confirm") ?? "").trim().toUpperCase();
+  if (!partnerId) return { ok: false, error: "Parceiro não identificado." };
+  if (confirm !== "EXCLUIR") {
+    return { ok: false, error: 'Digite "EXCLUIR" para confirmar a exclusão.' };
+  }
+
+  const partner = await prisma.partner.findUnique({
+    where: { id: partnerId },
+    select: {
+      id: true,
+      legalName: true,
+      document: true,
+      email: true,
+      status: true,
+      _count: { select: { commissions: true, leads: true, contracts: true } },
+    },
+  });
+  if (!partner) return { ok: false, error: "Parceiro não encontrado." };
+  if (partner._count.commissions > 0) {
+    return {
+      ok: false,
+      error:
+        "Este parceiro tem comissões registradas e não pode ser excluído — a trilha financeira precisa ser preservada. Use a suspensão para bloquear o acesso.",
+    };
+  }
+
+  await prisma.$transaction([
+    prisma.lead.deleteMany({ where: { partnerId } }), // histórico em cascade
+    prisma.contract.deleteMany({ where: { partnerId } }), // auditoria em cascade
+    prisma.user.deleteMany({ where: { partnerId } }),
+    prisma.partner.delete({ where: { id: partnerId } }),
+  ]);
+
+  await logAdminAction({
+    actorId: userId,
+    action: "PARTNER_DELETED",
+    entity: "Partner",
+    entityId: partnerId,
+    metadata: {
+      legalName: partner.legalName,
+      document: partner.document,
+      email: partner.email,
+      status: partner.status,
+      leadsApagados: partner._count.leads,
+      contratosApagados: partner._count.contracts,
+    },
+  });
+
+  after(() => removePartnerFromAudience(partner.email));
+
+  revalidatePath("/admin/parceiros");
+  revalidatePath("/admin");
+  redirect("/admin/parceiros?excluido=1");
 }

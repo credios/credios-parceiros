@@ -61,6 +61,16 @@ export default async function AdminPartnersPage({
         />
       </div>
 
+      {sp.excluido === "1" && (
+        <div
+          className="mb-5 rounded-md bg-status-success-bg px-4 py-3 text-sm text-status-success"
+          role="status"
+        >
+          Parceiro excluído definitivamente. O email ficou livre para um novo
+          cadastro e a ação foi registrada na auditoria.
+        </div>
+      )}
+
       <form className="animate-fade-up-1 mb-5 flex max-w-md gap-2" action="/admin/parceiros">
         <Input
           type="search"

@@ -22,6 +22,7 @@ import {
   Badge,
 } from "@/components/ui/badge";
 import { PageHeader } from "@/components/ui/page-header";
+import { DeletePartnerForm } from "./delete-partner-form";
 import {
   ResendInviteForm,
   SuspendPartnerForm,
@@ -332,6 +333,18 @@ export default async function AdminPartnerDetailPage({
               </div>
             )}
           </Card>
+
+          {/* Zona de risco — exclusão definitiva (master) */}
+          {isMaster && (
+            <Card tone="outlined" className="border-status-danger/30">
+              <h2 className="t-eyebrow text-status-danger mb-3">Zona de risco</h2>
+              <DeletePartnerForm
+                partnerId={partner.id}
+                hasCommissions={partner.commissions.length > 0}
+                leadCount={partner.leads.length}
+              />
+            </Card>
+          )}
         </div>
       </div>
     </div>

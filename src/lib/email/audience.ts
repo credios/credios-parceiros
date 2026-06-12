@@ -33,3 +33,20 @@ export async function addPartnerToAudience(opts: {
     console.error("[audience] falha ao adicionar contato:", err);
   }
 }
+
+/** Remove o contato da audience (parceiro excluído). Nunca propaga exceção. */
+export async function removePartnerFromAudience(email: string): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const audienceId = process.env.RESEND_NEWSLETTER_AUDIENCE_ID;
+  if (!apiKey || !audienceId) return;
+  try {
+    const resend = new Resend(apiKey);
+    const { error } = await resend.contacts.remove({
+      audienceId,
+      email: email.toLowerCase().trim(),
+    });
+    if (error) console.warn("[audience] contacts.remove:", error.message);
+  } catch (err) {
+    console.error("[audience] falha ao remover contato:", err);
+  }
+}

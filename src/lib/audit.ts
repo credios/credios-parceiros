@@ -15,6 +15,7 @@ export async function logAdminAction(opts: {
     | "PARTNER_RATE_CHANGED"
     | "PARTNER_SUSPENDED"
     | "PARTNER_REACTIVATED"
+    | "PARTNER_DELETED"
     | "INVITE_RESENT"
     | "CONTRACT_RESENT"
     | "CONTRACT_ADMIN_SIGNED"
