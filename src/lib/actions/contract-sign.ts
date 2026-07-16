@@ -1,6 +1,8 @@
 "use server";
 
 import { headers } from "next/headers";
+import { after } from "next/server";
+import { notifyCrmPartnerActivated } from "@/lib/crm/notify-activated";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 import { generateOtp, hashToken, safeEqualHex } from "@/lib/tokens";
@@ -182,6 +184,15 @@ export async function signContractAction(token: string): Promise<ActionResult> {
       error: "Não conseguimos concluir a assinatura. Tente novamente em instantes.",
     };
   }
+
+  // Avisa o CRM que a parceria está ATIVA (pipeline de relacionamento de lá).
+  after(() =>
+    notifyCrmPartnerActivated({
+      id: contract.partnerId,
+      legalName: contract.partner.legalName,
+      crmPartnerRef: contract.partner.crmPartnerRef ?? null,
+    })
+  );
 
   // Emails fora da transação (sendEmail nunca propaga exceção):
   // confirmação ao parceiro (sem PDF — ele chega após a contra-assinatura)
