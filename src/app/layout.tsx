@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: "%s | Portal de Parceiros Credios",
   },
   description:
-    "Indique clientes, acompanhe cada etapa da operação e receba 1,50% de comissão sobre o crédito liberado. O programa de parcerias da Credios.",
+    "Indique clientes, acompanhe cada etapa da operação e receba 2,00% de comissão sobre o valor líquido liberado ao cliente. O programa de parcerias da Credios.",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ?? "https://parceiros.credios.com.br"
   ),

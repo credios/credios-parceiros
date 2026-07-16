@@ -125,7 +125,7 @@ export default async function AdminLeadDetailPage({
                 <dd className="t-money mt-1">{formatBRL(lead.approvedAmount)}</dd>
               </div>
               <div>
-                <dt className="t-eyebrow text-neutral-400">Valor liberado</dt>
+                <dt className="t-eyebrow text-neutral-400">Valor líquido liberado</dt>
                 <dd className="t-money mt-1">
                   {formatBRL(lead.disbursedAmount)}
                   {lead.disbursedAt && (

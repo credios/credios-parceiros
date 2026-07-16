@@ -5,6 +5,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { CONTRACT_TEMPLATE_V1 } from "../src/lib/contracts/template-v1";
+import { CONTRACT_TEMPLATE_V2 } from "../src/lib/contracts/template-v2";
 
 const prisma = new PrismaClient();
 
@@ -35,17 +36,32 @@ async function main() {
   });
   console.log(`✓ Admin: ${admin.email}`);
 
-  const template = await prisma.contractTemplate.upsert({
+  // v1 permanece registrada e inativa: os contratos assinados sob ela apontam
+  // para este registro e o texto não pode mudar.
+  await prisma.contractTemplate.upsert({
     where: { version: 1 },
-    update: {},
+    update: { active: false },
     create: {
       version: 1,
       name: "Contrato de parceria — minuta inicial",
       bodyHtml: CONTRACT_TEMPLATE_V1,
+      active: false,
+    },
+  });
+
+  // update vazio: se uma v3 for publicada pelo admin, reexecutar o seed não
+  // pode ressuscitar a v2 como ativa.
+  const template = await prisma.contractTemplate.upsert({
+    where: { version: 2 },
+    update: {},
+    create: {
+      version: 2,
+      name: "Contrato de parceria — comissão 2,00% sobre o líquido",
+      bodyHtml: CONTRACT_TEMPLATE_V2,
       active: true,
     },
   });
-  console.log(`✓ Template de contrato v${template.version} (${template.id})`);
+  console.log(`✓ Template de contrato v${template.version} ativo (${template.id})`);
 }
 
 main()

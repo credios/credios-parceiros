@@ -121,6 +121,11 @@ parceiro) — daí o mapeamento N:1.
   reais), `bancoAprovador` (vira nota no histórico) e `dataFechamento`. O
   `applyStatusChange` do portal cria a comissão com a taxa do parceiro
   congelada (idempotente — reenvio não duplica comissão).
+- ⚠️ `valorLiberadoCentavos` **é o valor líquido creditado ao cliente**, já
+  deduzidos tributos, tarifas, seguros e demais encargos retidos na liberação.
+  Desde 15/07/2026 esse número é a base contratual da comissão de 2,00%
+  (cláusulas 2.1 e 2.2 do contrato de parceria v2). Mandar o valor bruto aqui
+  paga comissão a maior — e em desacordo com o contrato assinado.
 
 ## 5. Pré-requisito no CRM: source "Portal de Parceiros"
 

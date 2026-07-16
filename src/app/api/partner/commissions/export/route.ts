@@ -40,7 +40,8 @@ export async function GET() {
     },
   });
 
-  const header = "Cliente;Documento;Valor liberado;Taxa (%);Comissão;Status;Data pagamento";
+  const header =
+    "Cliente;Documento;Valor líquido liberado;Taxa (%);Comissão;Status;Data pagamento";
   const rows = commissions.map((c) =>
     [
       csvField(c.lead.name),

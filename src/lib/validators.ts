@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { isValidDocument, onlyDigits } from "@/lib/format";
-import { ARCHETYPES, PRODUCTS, UFS } from "@/lib/credios";
+import { ARCHETYPES, PRODUCTS, PROGRAMA, UFS } from "@/lib/credios";
 
 const documentSchema = z
   .string()
@@ -88,7 +88,7 @@ export const partnerSchema = z.object({
     .union([z.string(), z.number()])
     .optional()
     .transform((v) => {
-      if (v === undefined || v === "") return 1.5;
+      if (v === undefined || v === "") return PROGRAMA.comissaoPadrao;
       const n = typeof v === "number" ? v : Number(String(v).replace(",", "."));
       return n;
     })

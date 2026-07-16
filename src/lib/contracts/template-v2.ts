@@ -1,12 +1,12 @@
 /**
- * SUPERSEDIDA pela v2 (src/lib/contracts/template-v2.ts) em 15/07/2026, quando
- * a comissão passou a 2,00% sobre o valor líquido. NÃO ALTERE este texto: os
- * contratos assinados sob a v1 apontam para ela e a trilha de auditoria
- * pressupõe que a minuta original permaneça imutável.
+ * v2 — altera a condição comercial da cláusula 2.1: comissão passa de 1,50%
+ * sobre o crédito liberado para 2,00% sobre o valor LÍQUIDO da operação, com
+ * definição expressa do que compõe esse líquido. Demais cláusulas idênticas à
+ * v1. Mudança solicitada por Gabriel Meirelles em 15/07/2026.
  *
- * Texto aprovado pelo responsável jurídico da Credios (Gabriel Meirelles)
- * em 11/06/2026 — comissão de 1,50%, pagamento em até 10 dias úteis.
- * Novas versões podem ser criadas em /admin/contratos/novo-template.
+ * A v1 (src/lib/contracts/template-v1.ts) permanece no código e no banco como
+ * versão inativa: os contratos já assinados apontam para ela e a trilha de
+ * auditoria depende de o texto original não ser alterado.
  *
  * Merge fields disponíveis:
  * {{partner.legalName}} {{partner.document}} {{partner.personType}}
@@ -15,7 +15,7 @@
  * {{credios.representante}} {{commission.rate}} {{commission.prazoPagamento}}
  * {{contract.date}} {{contract.verifyCode}}
  */
-export const CONTRACT_TEMPLATE_V1 = `
+export const CONTRACT_TEMPLATE_V2 = `
 <h1>Contrato de Parceria Comercial — Programa de Parceiros Credios</h1>
 
 <p><strong>CONTRATADA:</strong> {{credios.razaoSocial}}, pessoa jurídica de direito privado, inscrita no CNPJ sob nº {{credios.cnpj}}, com sede na {{credios.endereco}}, neste ato representada na forma de seu contrato social ("CREDIOS").</p>
@@ -28,10 +28,12 @@ export const CONTRACT_TEMPLATE_V1 = `
 <p>1.3. A indicação de clientes será realizada exclusivamente por meio do Portal de Parceiros (parceiros.credios.com.br).</p>
 
 <h2>2. Comissão</h2>
-<p>2.1. Pela indicação que resultar em operação de crédito efetivamente liberada, o PARCEIRO fará jus a comissão de <strong>{{commission.rate}}% ({{commission.rateExtenso}})</strong> sobre o valor do crédito efetivamente liberado pela instituição financeira ao cliente indicado.</p>
-<p>2.2. A comissão será devida apenas após a liberação efetiva do crédito e será paga em até {{commission.prazoPagamento}} dias úteis contados da liberação, mediante transferência à conta ou chave PIX cadastrada pelo PARCEIRO no Portal.</p>
-<p>2.3. Não será devida comissão sobre operações não concluídas, recusadas pelas instituições financeiras ou canceladas pelo cliente, independentemente do estágio em que se encontrem.</p>
-<p>2.4. Sendo o PARCEIRO pessoa jurídica, o pagamento fica condicionado à emissão da respectiva nota fiscal.</p>
+<p>2.1. Pela indicação que resultar em operação de crédito efetivamente liberada, o PARCEIRO fará jus a comissão de <strong>{{commission.rate}}% ({{commission.rateExtenso}})</strong> calculada sobre o valor líquido da operação.</p>
+<p>2.2. Entende-se por valor líquido da operação o montante efetivamente creditado ao cliente indicado pela instituição financeira, já deduzidos tributos, tarifas, seguros, custos de registro e demais encargos retidos por ocasião da liberação.</p>
+<p>2.3. A comissão será devida apenas após a liberação efetiva do crédito e será paga em até {{commission.prazoPagamento}} dias úteis contados da liberação, mediante transferência à conta ou chave PIX cadastrada pelo PARCEIRO no Portal.</p>
+<p>2.4. O percentual aplicável é aquele vigente na data da liberação do crédito, registrado no Portal de Parceiros no momento da geração da comissão, não se aplicando a operações já liberadas eventual alteração posterior.</p>
+<p>2.5. Não será devida comissão sobre operações não concluídas, recusadas pelas instituições financeiras ou canceladas pelo cliente, independentemente do estágio em que se encontrem.</p>
+<p>2.6. Sendo o PARCEIRO pessoa jurídica, o pagamento fica condicionado à emissão da respectiva nota fiscal.</p>
 
 <h2>3. Não exclusividade e independência</h2>
 <p>3.1. Esta parceria não estabelece exclusividade, vínculo empregatício, societário ou de representação entre as partes.</p>

@@ -62,7 +62,8 @@ export function LeadStatusForm({
             atual congelada.
           </p>
           <Field
-            label="Valor efetivamente liberado (R$)"
+            label="Valor líquido liberado ao cliente (R$)"
+            hint="Base da comissão: o que caiu na conta do cliente, já descontados tributos, tarifas e demais custos retidos."
             htmlFor="disbursedAmount"
             required
             error={errors.disbursedAmount}

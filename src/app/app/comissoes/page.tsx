@@ -94,7 +94,7 @@ export default async function ComissoesPage() {
           <EmptyState
             icon={HandCoins}
             title="Nenhuma comissão ainda"
-            description={`Quando o crédito de um cliente indicado por você for liberado, sua comissão de ${formatPercent(PROGRAMA.comissaoPadrao)} sobre o valor liberado é gerada automaticamente e aparece aqui como a receber.`}
+            description={`Quando o crédito de um cliente indicado por você for liberado, sua comissão de ${formatPercent(PROGRAMA.comissaoPadrao)} sobre o valor líquido liberado é gerada automaticamente e aparece aqui como a receber.`}
           />
         ) : (
           <>

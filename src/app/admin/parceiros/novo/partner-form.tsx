@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createPartnerAction } from "@/lib/actions/admin-partners";
-import { ARCHETYPES, UFS } from "@/lib/credios";
+import { ARCHETYPES, PROGRAMA, UFS } from "@/lib/credios";
 import { Card } from "@/components/ui/card";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
@@ -22,7 +22,9 @@ export function PartnerForm({
   const [document, setDocument] = useState("");
   const [repDocument, setRepDocument] = useState("");
   const [phone, setPhone] = useState("");
-  const [rate, setRate] = useState("1,50");
+  const [rate, setRate] = useState(
+    PROGRAMA.comissaoPadrao.toLocaleString("pt-BR", { minimumFractionDigits: 2 })
+  );
 
   useEffect(() => {
     if (state && !state.ok && state.error) toast.error(state.error);

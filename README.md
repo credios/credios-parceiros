@@ -1,6 +1,6 @@
 # Portal de Parceiros Credios
 
-`parceiros.credios.com.br` — parceiros comerciais (corretores, contadores, advogados, imobiliárias, administradoras, assessores) indicam clientes, acompanham as operações em tempo real, assinam o contrato de parceria eletronicamente e acompanham suas comissões (1,50% sobre o crédito liberado).
+`parceiros.credios.com.br` — parceiros comerciais (corretores, contadores, advogados, imobiliárias, administradoras, assessores) indicam clientes, acompanham as operações em tempo real, assinam o contrato de parceria eletronicamente e acompanham suas comissões (2,00% sobre o valor líquido liberado ao cliente).
 
 ## Stack
 
@@ -88,7 +88,7 @@ Ver `docs/INTEGRACAO-CRM.md`: env vars dos dois lados + um único módulo a adic
 ## Regras de negócio críticas
 
 - **Dedup de leads**: CPF/CNPJ com indicação ativa bloqueia novo cadastro (mensagem neutra; admin é alertado). Primeiro a cadastrar tem prioridade. `RECUSADO`/`CANCELADO` há 90+ dias pode ser re-indicado.
-- **Comissão**: criada só em `LIBERADO` com valor liberado; `valor × taxa/100` com taxa **congelada** no momento (mudanças futuras de taxa não recalculam).
+- **Comissão**: criada só em `LIBERADO` com o valor líquido liberado ao cliente; `líquido × taxa/100` com taxa **congelada** no momento (mudanças futuras de taxa não recalculam).
 - **Isolamento**: toda query/action de `/app` verifica ownership no servidor (`requirePartnerSession` + filtro por `partnerId`).
 - **Privacidade**: motivos internos de recusa nunca aparecem para o parceiro; CPF mascarado onde o dado completo não é necessário.
 

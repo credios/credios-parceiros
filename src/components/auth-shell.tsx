@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 
 const TRUST_POINTS = [
   "Acompanhe cada operação em tempo real",
-  "Comissão de 1,50% sobre o crédito liberado",
+  "Comissão de 2,00% sobre o valor líquido liberado",
   "Contrato digital com trilha de auditoria",
 ];
 

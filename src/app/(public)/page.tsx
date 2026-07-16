@@ -19,9 +19,9 @@ import { ARCHETYPES, CREDIOS, PROGRAMA } from "@/lib/credios";
 import type { LucideIcon } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Programa de parcerias — indique e receba 1,50% do crédito liberado",
+  title: "Programa de parcerias — indique e receba 2,00% do valor líquido liberado",
   description:
-    "Indique clientes para crédito com garantia de imóvel, acompanhe cada etapa pelo portal e receba 1,50% de comissão sobre o crédito liberado. Credios, desde 2019.",
+    "Indique clientes para crédito com garantia de imóvel, acompanhe cada etapa pelo portal e receba 2,00% de comissão sobre o valor líquido liberado ao cliente. Credios, desde 2019.",
   robots: { index: true, follow: true },
 };
 
@@ -46,7 +46,7 @@ const steps = [
     icon: Banknote,
     title: "Crédito liberado, comissão sua",
     description:
-      "Quando o crédito sai, sua comissão de 1,50% sobre o valor liberado é gerada automaticamente.",
+      "Quando o crédito sai, sua comissão de 2,00% sobre o valor líquido liberado é gerada automaticamente.",
   },
 ] as const;
 
@@ -63,7 +63,7 @@ const archetypeIcons: Record<string, LucideIcon> = {
 const faq = [
   {
     q: "Quanto eu recebo por indicação?",
-    a: "1,50% sobre o valor do crédito efetivamente liberado. Em uma operação de R$ 500.000, são R$ 7.500. A comissão aparece no portal assim que o crédito sai e o pagamento é feito em poucos dias úteis.",
+    a: "2,00% sobre o valor líquido da operação — o que efetivamente cai na conta do cliente, já descontados tributos, tarifas e demais custos retidos na liberação. Em uma liberação líquida de R$ 500.000, são R$ 10.000. A comissão aparece no portal assim que o crédito sai e o pagamento é feito em poucos dias úteis.",
   },
   {
     q: "Preciso entender de crédito imobiliário?",
@@ -95,7 +95,7 @@ export default function LandingPage() {
               <h1 className="t-display-lg text-credios-charcoal mt-4">
                 Indique clientes. Acompanhe tudo.{" "}
                 <span className="text-credios-blue">
-                  Receba 1,50% do crédito liberado.
+                  Receba 2,00% do valor líquido liberado.
                 </span>
               </h1>
             </Reveal>
@@ -181,8 +181,8 @@ export default function LandingPage() {
               </p>
               <div className="mx-auto mt-6 h-px w-40 bg-accent-line-gold" aria-hidden />
               <p className="t-caption text-white/60 mt-4">
-                Comissão de 1,50% sobre o crédito liberado — sem teto, sem limite de
-                indicações.
+                Comissão de 2,00% sobre o valor líquido liberado — sem teto, sem limite
+                de indicações.
               </p>
             </Card>
           </Reveal>

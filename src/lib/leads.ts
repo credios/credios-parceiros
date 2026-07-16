@@ -65,8 +65,9 @@ interface StatusChangeExtras {
 
 /**
  * Transição de status — único caminho para mudar o status de um lead.
- * Atualiza o lead, registra LeadStatusEvent e, ao entrar em LIBERADO com
- * valor liberado, cria a comissão com a taxa do parceiro congelada (snapshot).
+ * Atualiza o lead, registra LeadStatusEvent e, ao entrar em LIBERADO com o
+ * valor líquido liberado ao cliente, cria a comissão com a taxa do parceiro
+ * congelada (snapshot).
  * Dispara emails de marco ao parceiro. Idempotente: mesma transição repetida
  * não duplica evento nem comissão.
  */
@@ -115,7 +116,7 @@ export async function applyStatusChange(opts: {
       });
     }
 
-    // Motor de comissão: LIBERADO + valor liberado + ainda sem comissão
+    // Motor de comissão: LIBERADO + valor líquido liberado + ainda sem comissão
     let commission = null;
     const disbursed =
       extras?.disbursedAmount !== undefined

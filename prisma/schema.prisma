@@ -95,7 +95,7 @@ model Partner {
   // Recebimento de comissão
   pixKey         String?
   bankInfo       Json?
-  commissionRate Decimal @default(1.50) @db.Decimal(5, 2) // % sobre o crédito liberado
+  commissionRate Decimal @default(2.00) @db.Decimal(5, 2) // % sobre o valor líquido liberado ao cliente
 
   crmPartnerRef String? // identificador do parceiro no CRM
   notes         String? // notas internas (visível só ao admin)
@@ -146,7 +146,7 @@ model Lead {
 
   // Resultado
   approvedAmount  Decimal?    @db.Decimal(14, 2)
-  disbursedAmount Decimal?    @db.Decimal(14, 2) // valor efetivamente liberado — base da comissão
+  disbursedAmount Decimal?    @db.Decimal(14, 2) // valor líquido liberado ao cliente — base da comissão
   disbursedAt     DateTime?
   commission      Commission?
 
@@ -178,7 +178,7 @@ model Commission {
   partnerId  String
   lead       Lead             @relation(fields: [leadId], references: [id])
   leadId     String           @unique
-  baseAmount Decimal          @db.Decimal(14, 2) // valor do crédito liberado
+  baseAmount Decimal          @db.Decimal(14, 2) // valor líquido liberado ao cliente
   rate       Decimal          @db.Decimal(5, 2) // % aplicada (snapshot no momento da criação)
   amount     Decimal          @db.Decimal(14, 2) // baseAmount * rate / 100
   status     CommissionStatus @default(A_RECEBER)

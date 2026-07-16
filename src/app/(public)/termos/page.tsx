@@ -57,9 +57,11 @@ export default function TermsPage() {
           </h2>
           <div className="t-body text-neutral-600 mt-3 flex flex-col gap-3">
             <p>
-              O parceiro faz jus a comissão calculada sobre o valor do crédito
-              efetivamente liberado ao cliente indicado, conforme percentual
-              previsto no contrato de parceria (padrão de{" "}
+              O parceiro faz jus a comissão calculada sobre o valor líquido da
+              operação — o montante efetivamente creditado ao cliente indicado,
+              já deduzidos tributos, tarifas, seguros e demais encargos retidos
+              na liberação — conforme percentual previsto no contrato de
+              parceria (padrão de{" "}
               {PROGRAMA.comissaoPadrao.toLocaleString("pt-BR", {
                 minimumFractionDigits: 2,
               })}

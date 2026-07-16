@@ -18,7 +18,7 @@ export async function sendInviteEmail(opts: {
       eyebrow: "Programa de parcerias",
       title: `${opts.partnerName}, seja bem-vindo(a) à Credios`,
       bodyHtml: `
-        <p>Você foi convidado para o Portal de Parceiros da Credios. Por lá, você indica clientes em menos de 2 minutos, acompanha cada etapa das operações em tempo real e visualiza suas comissões de ${formatPercent(PROGRAMA.comissaoPadrao)} sobre o crédito liberado.</p>
+        <p>Você foi convidado para o Portal de Parceiros da Credios. Por lá, você indica clientes em menos de 2 minutos, acompanha cada etapa das operações em tempo real e visualiza suas comissões de ${formatPercent(PROGRAMA.comissaoPadrao)} sobre o valor líquido liberado ao cliente.</p>
         <p>Para começar, crie sua senha de acesso. O link vale por 7 dias.</p>`,
       cta: { label: "Criar minha senha", url: `${APP_URL}/convite/${opts.token}` },
     }),
@@ -211,7 +211,7 @@ export async function sendCommissionCreatedEmail(opts: {
       eyebrow: "Comissão",
       title: "O crédito foi liberado — sua comissão foi gerada",
       bodyHtml: `
-        <p>${opts.partnerName}, o crédito de ${formatBRL(opts.baseAmount)} indicado por você para <strong>${opts.clientName}</strong> foi liberado. Sua comissão já aparece no portal como a receber.</p>`,
+        <p>${opts.partnerName}, o crédito indicado por você para <strong>${opts.clientName}</strong> foi liberado, com valor líquido de ${formatBRL(opts.baseAmount)}. Sua comissão já aparece no portal como a receber.</p>`,
       highlight: { label: "Comissão a receber", value: formatBRL(opts.amount) },
       cta: { label: "Ver minhas comissões", url: `${APP_URL}/app/comissoes` },
     }),

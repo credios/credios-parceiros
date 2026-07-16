@@ -4,13 +4,13 @@ import { formatDocument, formatPhone } from "@/lib/format";
 
 /**
  * Merge da minuta de contrato: substitui os merge fields do template
- * (src/lib/contracts/template-v1.ts / ContractTemplate.bodyHtml) pelos
+ * (src/lib/contracts/template-v2.ts / ContractTemplate.bodyHtml) pelos
  * dados reais do parceiro e da Credios.
  */
 
 export interface MergeData {
   partner: Partner;
-  /** Taxa formatada pt-BR, ex.: "1,50". */
+  /** Taxa formatada pt-BR, ex.: "2,00". */
   rate: string;
   /** Data por extenso, ex.: "11 de junho de 2026" — use formatDateExtenso(). */
   date: string;
@@ -63,7 +63,7 @@ const DIGITOS_EXTENSO: Record<string, string> = {
 
 /**
  * Conversão simples dígito a dígito da taxa para extenso:
- * "1,50" → "um vírgula cinco zero por cento".
+ * "2,00" → "dois vírgula zero zero por cento".
  */
 export function rateExtenso(rate: string): string {
   const palavras = rate

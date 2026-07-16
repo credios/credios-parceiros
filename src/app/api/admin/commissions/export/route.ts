@@ -48,7 +48,7 @@ export async function GET() {
     "Parceiro",
     "Documento parceiro",
     "Cliente",
-    "Valor liberado",
+    "Valor líquido liberado",
     "Taxa (%)",
     "Comissão",
     "Status",
