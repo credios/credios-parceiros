@@ -255,7 +255,7 @@ export async function updatePartnerRateAction(
   if (Number.isNaN(rate) || rate <= 0 || rate > 10) {
     return {
       ok: false,
-      fieldErrors: { commissionRate: "Informe uma taxa entre 0 e 10% (ex.: 2,00)." },
+      fieldErrors: { commissionRate: "Informe uma taxa entre 0 e 10% (ex.: 3,00)." },
     };
   }
 

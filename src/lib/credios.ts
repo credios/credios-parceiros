@@ -17,7 +17,7 @@ export const CREDIOS = {
 
 /** Condições padrão do programa de parcerias. */
 export const PROGRAMA = {
-  comissaoPadrao: 2.0, // % sobre o valor líquido liberado ao cliente (15/07/2026)
+  comissaoPadrao: 3.0, // % sobre o valor líquido liberado ao cliente (3,00% desde 17/07/2026; antes 2,00%)
   prazoPagamentoDias: 10, // dias úteis após a liberação (aprovado 11/06/2026)
   cicloTipicoDias: "30 a 90",
 } as const;

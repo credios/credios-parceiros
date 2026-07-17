@@ -70,7 +70,7 @@ export default async function DashboardPage() {
             {[
               ["1. Indique", "Cadastre o cliente em menos de 2 minutos, direto do celular."],
               ["2. Acompanhe", "Nossa equipe cuida de tudo e você vê cada etapa da operação."],
-              ["3. Receba", "Crédito liberado, comissão de 2,00% gerada automaticamente."],
+              ["3. Receba", "Crédito liberado, comissão de 3,00% gerada automaticamente."],
             ].map(([title, text]) => (
               <li key={title} className="rounded-md bg-credios-ivory p-4">
                 <p className="text-sm font-semibold text-credios-charcoal">{title}</p>

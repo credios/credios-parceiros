@@ -95,7 +95,7 @@ model Partner {
   // Recebimento de comissão
   pixKey         String?
   bankInfo       Json?
-  commissionRate Decimal @default(2.00) @db.Decimal(5, 2) // % sobre o valor líquido liberado ao cliente
+  commissionRate Decimal @default(3.00) @db.Decimal(5, 2) // % sobre o valor líquido liberado ao cliente
 
   crmPartnerRef String? // identificador do parceiro no CRM
   notes         String? // notas internas (visível só ao admin)
