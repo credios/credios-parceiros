@@ -67,7 +67,7 @@ const faq = [
   },
   {
     q: "Preciso entender de crédito imobiliário?",
-    a: "Não. Você indica o cliente e a Credios assume tudo: análise de perfil, documentação, avaliação do imóvel e negociação com mais de 15 bancos parceiros. Você só acompanha pelo portal.",
+    a: "Não. Você indica o cliente e a Credios assume tudo: análise de perfil, documentação, avaliação do imóvel e negociação com mais de 30 bancos parceiros. Você só acompanha pelo portal.",
   },
   {
     q: "Quanto tempo leva uma operação?",
@@ -130,7 +130,7 @@ export default function LandingPage() {
                   Correspondente bancário — Resolução BCB nº 4.935/2021
                 </span>
                 <span className="t-caption text-neutral-500">Desde 2019</span>
-                <span className="t-caption text-neutral-500">+15 bancos parceiros</span>
+                <span className="t-caption text-neutral-500">+30 bancos parceiros</span>
               </div>
             </Reveal>
           </div>
@@ -268,7 +268,7 @@ export default function LandingPage() {
             </h2>
             <p className="t-body-lg text-white/70 mt-4 max-w-2xl mx-auto">
               A Credios é correspondente bancário autorizado pelo Banco Central
-              (Resolução BCB nº 4.935/2021) e trabalha com mais de 15 instituições
+              (Resolução BCB nº 4.935/2021) e trabalha com mais de 30 instituições
               financeiras para encontrar a melhor condição para cada cliente.
             </p>
           </Reveal>
