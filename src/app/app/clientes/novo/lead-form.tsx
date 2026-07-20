@@ -4,6 +4,15 @@ import { useActionState, useState } from "react";
 import { AlertCircle } from "lucide-react";
 import { createLeadAction, type ActionState } from "@/lib/actions/partner";
 import { PRODUCTS, UFS } from "@/lib/credios";
+import {
+  MIN_CREDIT,
+  MIN_PROPERTY,
+  MIN_RENDA_TITULAR,
+  PROPERTY_TYPE_LABELS,
+  brl,
+  isDisqualifiedType,
+  ltvOf,
+} from "@/lib/qualificacao";
 import { Card } from "@/components/ui/card";
 import { Field, Input, Select, Textarea, Checkbox } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
@@ -48,12 +57,19 @@ function MoneyInput({
   id,
   name,
   error,
+  value,
+  onValueChange,
 }: {
   id: string;
   name: string;
   error?: string;
+  /** Controlado pelo pai quando o valor participa do cálculo de LTV. */
+  value?: string;
+  onValueChange?: (v: string) => void;
 }) {
-  const [value, setValue] = useState("");
+  const [internal, setInternal] = useState("");
+  const controlled = value !== undefined;
+  const shown = controlled ? value : internal;
   return (
     <div className="relative">
       <span
@@ -65,8 +81,12 @@ function MoneyInput({
       <Input
         id={id}
         name={name}
-        value={value}
-        onChange={(e) => setValue(maskMoney(e.target.value))}
+        value={shown}
+        onChange={(e) => {
+          const masked = maskMoney(e.target.value);
+          if (controlled) onValueChange?.(masked);
+          else setInternal(masked);
+        }}
         inputMode="numeric"
         autoComplete="off"
         placeholder="0"
@@ -77,6 +97,11 @@ function MoneyInput({
   );
 }
 
+/** "500.000" → 500000 */
+function parseMoney(v: string): number {
+  return parseInt(v.replace(/\D/g, ""), 10) || 0;
+}
+
 export function LeadForm() {
   const [state, formAction] = useActionState<ActionState, FormData>(
     createLeadAction,
@@ -84,7 +109,21 @@ export function LeadForm() {
   );
   const [doc, setDoc] = useState("");
   const [phone, setPhone] = useState("");
+  const [product, setProduct] = useState("CGI");
+  const [propertyValue, setPropertyValue] = useState("");
+  const [requestedAmount, setRequestedAmount] = useState("");
+  const [propertyType, setPropertyType] = useState("");
   const errors = state?.fieldErrors ?? {};
+
+  // Regras de CGI (src/lib/qualificacao.ts). Nos demais produtos a garantia
+  // segue outra lógica e o formulário não pré-qualifica.
+  const isCGI = product === "CGI";
+  const pv = parseMoney(propertyValue);
+  const ra = parseMoney(requestedAmount);
+  const ltv = propertyType ? ltvOf(propertyType) : null;
+  const ruralBlocked = propertyType ? isDisqualifiedType(propertyType) : false;
+  const teto = ltv !== null && pv > 0 ? Math.floor(pv * ltv) : null;
+  const acimaDoTeto = teto !== null && ra > teto;
 
   return (
     <form action={formAction} className="flex flex-col gap-8 max-w-2xl">
@@ -175,7 +214,12 @@ export function LeadForm() {
         </h2>
         <div className="flex flex-col gap-5">
           <Field label="Produto" htmlFor="product" error={errors.product}>
-            <Select id="product" name="product" defaultValue="CGI">
+            <Select
+              id="product"
+              name="product"
+              value={product}
+              onChange={(e) => setProduct(e.target.value)}
+            >
               {PRODUCTS.map((p) => (
                 <option key={p.value} value={p.value}>
                   {p.label}
@@ -183,30 +227,147 @@ export function LeadForm() {
               ))}
             </Select>
           </Field>
-          <div className="grid gap-5 sm:grid-cols-2">
+
+          {isCGI && (
             <Field
-              label="Valor desejado"
-              htmlFor="requestedAmount"
-              error={errors.requestedAmount}
+              label="Tipo do imóvel em garantia"
+              htmlFor="propertyType"
+              required
+              error={errors.propertyType}
+              hint="Define o percentual do imóvel que pode virar crédito."
             >
-              <MoneyInput
-                id="requestedAmount"
-                name="requestedAmount"
-                error={errors.requestedAmount}
-              />
+              <Select
+                id="propertyType"
+                name="propertyType"
+                value={propertyType}
+                onChange={(e) => setPropertyType(e.target.value)}
+                aria-invalid={errors.propertyType ? true : undefined}
+              >
+                <option value="">Selecione…</option>
+                {PROPERTY_TYPE_LABELS.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </Select>
             </Field>
+          )}
+
+          {ruralBlocked && (
+            <div
+              role="alert"
+              className="flex items-start gap-3 rounded-md bg-status-danger-bg px-4 py-3"
+            >
+              <AlertCircle size={18} className="text-status-danger shrink-0 mt-0.5" aria-hidden />
+              <p className="text-sm text-status-danger">
+                Imóvel rural está fora da política de crédito da Credios. Essa indicação
+                não pode ser enviada.
+              </p>
+            </div>
+          )}
+
+          <div className="grid gap-5 sm:grid-cols-2">
             <Field
               label="Valor aproximado do imóvel"
               htmlFor="propertyValue"
+              required={isCGI}
               error={errors.propertyValue}
+              hint={isCGI ? `Mínimo de ${brl(MIN_PROPERTY)}.` : undefined}
             >
               <MoneyInput
                 id="propertyValue"
                 name="propertyValue"
                 error={errors.propertyValue}
+                value={propertyValue}
+                onValueChange={setPropertyValue}
+              />
+            </Field>
+            <Field
+              label="Valor desejado"
+              htmlFor="requestedAmount"
+              required={isCGI}
+              error={errors.requestedAmount}
+              hint={isCGI ? `Mínimo de ${brl(MIN_CREDIT)}.` : undefined}
+            >
+              <MoneyInput
+                id="requestedAmount"
+                name="requestedAmount"
+                error={errors.requestedAmount}
+                value={requestedAmount}
+                onValueChange={setRequestedAmount}
               />
             </Field>
           </div>
+
+          {isCGI && teto !== null && !ruralBlocked && (
+            <p
+              className={
+                acimaDoTeto
+                  ? "t-caption text-status-danger"
+                  : "t-caption text-neutral-500"
+              }
+              role={acimaDoTeto ? "alert" : undefined}
+            >
+              {acimaDoTeto ? (
+                <>
+                  Acima do limite: para {propertyType.toLowerCase()} o crédito vai até{" "}
+                  {Math.round((ltv ?? 0) * 100)}% do imóvel — no máximo{" "}
+                  <strong>{brl(teto)}</strong>.
+                </>
+              ) : (
+                <>
+                  Para {propertyType.toLowerCase()}, este imóvel comporta até{" "}
+                  <strong>{brl(teto)}</strong> de crédito ({Math.round((ltv ?? 0) * 100)}%).
+                </>
+              )}
+            </p>
+          )}
+
+          {isCGI && (
+            <>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field
+                  label="Renda mensal do titular"
+                  htmlFor="rendaTitular"
+                  required
+                  error={errors.rendaTitular}
+                  hint={`A partir de ${brl(MIN_RENDA_TITULAR)}.`}
+                >
+                  <MoneyInput
+                    id="rendaTitular"
+                    name="rendaTitular"
+                    error={errors.rendaTitular}
+                  />
+                </Field>
+                <Field
+                  label="Renda do cônjuge"
+                  htmlFor="rendaConjuge"
+                  error={errors.rendaConjuge}
+                  hint="Opcional — só se compuser renda."
+                >
+                  <MoneyInput
+                    id="rendaConjuge"
+                    name="rendaConjuge"
+                    error={errors.rendaConjuge}
+                  />
+                </Field>
+              </div>
+              <Field
+                label="Saldo devedor do imóvel"
+                htmlFor="saldoDevedor"
+                required
+                error={errors.saldoDevedor}
+                hint="Quanto ainda falta pagar do financiamento. Use 0 se o imóvel está quitado."
+              >
+                <MoneyInput
+                  id="saldoDevedor"
+                  name="saldoDevedor"
+                  error={errors.saldoDevedor}
+                />
+              </Field>
+            </>
+          )}
+
           <Field label="Cidade do imóvel" htmlFor="propertyCity" error={errors.propertyCity}>
             <Input
               id="propertyCity"
@@ -239,7 +400,12 @@ export function LeadForm() {
             {errors.consent}
           </p>
         )}
-        <SubmitButton size="lg" pendingLabel="Enviando..." className="w-full sm:w-auto">
+        <SubmitButton
+          size="lg"
+          pendingLabel="Enviando..."
+          className="w-full sm:w-auto"
+          disabled={ruralBlocked}
+        >
           Enviar indicação
         </SubmitButton>
       </div>

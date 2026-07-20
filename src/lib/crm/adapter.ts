@@ -83,6 +83,22 @@ export function buildCrmLeadPayload(
     valor_credito: decimalToReais(lead.requestedAmount),
     valor_imovel: decimalToReais(lead.propertyValue),
 
+    // Pré-qualificação — mesmos campos que o simulador do site preenche, para
+    // a indicação do parceiro chegar no CRM com o mesmo nível de informação.
+    ...(lead.propertyType ? { tipo_imovel: lead.propertyType } : {}),
+    ...(lead.rendaTitular !== null
+      ? { renda_mensal: decimalToReais(lead.rendaTitular) }
+      : {}),
+    ...(lead.saldoDevedor !== null
+      ? { saldo_devedor: decimalToReais(lead.saldoDevedor) }
+      : {}),
+    ...(lead.rendaConjuge !== null && Number(lead.rendaConjuge) > 0
+      ? {
+          conjuge_compoe_renda: true,
+          conjuge_renda: decimalToReais(lead.rendaConjuge),
+        }
+      : {}),
+
     // ── Parceria (campos de primeira classe no CRM, migration 0029) ──────
     parceiro_nome: partner.legalName,
     parceiro_portal_id: partner.id,

@@ -137,6 +137,13 @@ model Lead {
   notes           String? // contexto do parceiro sobre o cliente
   consentAt       DateTime // LGPD: consentimento declarado pelo parceiro
 
+  // Pré-qualificação (src/lib/qualificacao.ts) — exigidos no cadastro de CGI.
+  // Nuláveis na tabela por causa dos leads criados antes da política.
+  propertyType String? // rótulo de PROPERTY_TYPES; define o LTV aceito
+  rendaTitular Decimal? @db.Decimal(14, 2)
+  rendaConjuge Decimal? @db.Decimal(14, 2)
+  saldoDevedor Decimal? @db.Decimal(14, 2) // 0 = imóvel quitado
+
   status        LeadStatus        @default(RECEBIDO)
   statusHistory LeadStatusEvent[]
 

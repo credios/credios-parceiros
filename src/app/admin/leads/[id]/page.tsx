@@ -117,8 +117,30 @@ export default async function AdminLeadDetailPage({
                 <dd className="t-money mt-1">{formatBRL(lead.propertyValue)}</dd>
               </div>
               <div>
+                <dt className="t-eyebrow text-neutral-400">Tipo do imóvel</dt>
+                <dd className="mt-1 font-medium">{lead.propertyType ?? "—"}</dd>
+              </div>
+              <div>
                 <dt className="t-eyebrow text-neutral-400">Cidade do imóvel</dt>
                 <dd className="mt-1 font-medium">{lead.propertyCity ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="t-eyebrow text-neutral-400">Saldo devedor</dt>
+                <dd className="t-money mt-1">
+                  {lead.saldoDevedor === null
+                    ? "—"
+                    : Number(lead.saldoDevedor) === 0
+                      ? "Quitado"
+                      : formatBRL(lead.saldoDevedor)}
+                </dd>
+              </div>
+              <div>
+                <dt className="t-eyebrow text-neutral-400">Renda do titular</dt>
+                <dd className="t-money mt-1">{formatBRL(lead.rendaTitular)}</dd>
+              </div>
+              <div>
+                <dt className="t-eyebrow text-neutral-400">Renda do cônjuge</dt>
+                <dd className="t-money mt-1">{formatBRL(lead.rendaConjuge)}</dd>
               </div>
               <div>
                 <dt className="t-eyebrow text-neutral-400">Valor aprovado</dt>

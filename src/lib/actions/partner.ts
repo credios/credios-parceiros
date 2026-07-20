@@ -75,6 +75,10 @@ export async function createLeadAction(
     requestedAmount: optional(formData.get("requestedAmount")),
     propertyValue: optional(formData.get("propertyValue")),
     propertyCity: optional(formData.get("propertyCity")),
+    propertyType: optional(formData.get("propertyType")),
+    rendaTitular: optional(formData.get("rendaTitular")),
+    rendaConjuge: optional(formData.get("rendaConjuge")),
+    saldoDevedor: optional(formData.get("saldoDevedor")),
     notes: optional(formData.get("notes")),
     consent: formData.get("consent") === "on",
   });
@@ -125,6 +129,13 @@ export async function createLeadAction(
       propertyValue:
         data.propertyValue !== undefined ? new Prisma.Decimal(data.propertyValue) : null,
       propertyCity: data.propertyCity ?? null,
+      propertyType: data.propertyType ?? null,
+      rendaTitular:
+        data.rendaTitular !== undefined ? new Prisma.Decimal(data.rendaTitular) : null,
+      rendaConjuge:
+        data.rendaConjuge !== undefined ? new Prisma.Decimal(data.rendaConjuge) : null,
+      saldoDevedor:
+        data.saldoDevedor !== undefined ? new Prisma.Decimal(data.saldoDevedor) : null,
       notes: data.notes ?? null,
       consentAt: new Date(),
       status: "RECEBIDO",
