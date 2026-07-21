@@ -11,6 +11,7 @@ import { logAdminAction } from "@/lib/audit";
 import { generateToken } from "@/lib/tokens";
 import { sendInviteEmail } from "@/lib/email/templates";
 import { addPartnerToAudience, removePartnerFromAudience } from "@/lib/email/audience";
+import { syncPartnerToCrm } from "@/lib/crm/notify-activated";
 import { partnerSchema } from "@/lib/validators";
 import {
   toFieldErrors,
@@ -127,6 +128,9 @@ export async function createPartnerAction(
   await sendInviteEmail({ to: data.email, partnerName: data.legalName, token });
   // Parceiro entra na lista de newsletter do Resend fora do caminho crítico.
   after(() => addPartnerToAudience({ name: data.legalName, email: data.email }));
+  // Espelha o parceiro no CRM já como convidado (aparece no funil de parceria
+  // antes mesmo de assinar; vira "ativo" quando o contrato for assinado).
+  after(() => syncPartnerToCrm(partner.id));
   await logAdminAction({
     actorId: userId,
     action: "PARTNER_CREATED",

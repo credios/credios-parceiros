@@ -120,6 +120,55 @@ export function buildCrmLeadPayload(
   };
 }
 
+/**
+ * Arquétipo do portal → segmento do CRM (PARCEIRO_SEGMENTOS). Quase 1:1; o
+ * portal tem "administradora", que não existe como segmento no CRM → "outro".
+ */
+const ARCHETYPE_TO_SEGMENTO: Record<string, string> = {
+  corretor: "corretor",
+  imobiliaria: "imobiliaria",
+  contador: "contador",
+  advogado: "advogado",
+  assessor: "assessor",
+  administradora: "outro",
+  outro: "outro",
+};
+
+/**
+ * Monta o payload de sincronização de PARCEIRO para o CRM (evento
+ * `partner.synced` em POST {CRM_BASE_URL}/api/webhooks/parceiro). O CRM faz
+ * upsert por portal_partner_id, preenchendo os campos vazios e mapeando o
+ * status do portal para o estágio do pipeline de parceria.
+ *
+ * - `nome`/`empresa`: PJ separa razão social (empresa) do representante (nome);
+ *   PF usa a razão social como nome e não tem empresa.
+ * - `whatsapp` vai em dígitos; o CRM normaliza para E.164.
+ * - `taxa_comissao`/`gerente_nome` não têm coluna dedicada no CRM: seguem no
+ *   payload e são preservados em raw_payload (auditável).
+ */
+export function buildCrmPartnerPayload(
+  partner: Partner,
+  managerName: string | null
+): Record<string, unknown> {
+  const isPJ = partner.personType === "PJ";
+  return {
+    event: "partner.synced",
+    portal_partner_id: partner.id,
+    crm_parceiro_ref: partner.crmPartnerRef ?? null,
+    portal_status: partner.status, // INVITED | PENDING_CONTRACT | ACTIVE | ...
+    nome: (isPJ ? partner.repName : null) || partner.legalName,
+    ...(isPJ ? { empresa: partner.legalName } : {}),
+    email: partner.email,
+    whatsapp: partner.phone,
+    documento: partner.document,
+    segmento: ARCHETYPE_TO_SEGMENTO[partner.archetype] ?? "outro",
+    ...(partner.city ? { cidade: partner.city } : {}),
+    ...(partner.state ? { estado: partner.state } : {}),
+    taxa_comissao: decimalToReais(partner.commissionRate) ?? null,
+    gerente_nome: managerName,
+  };
+}
+
 export class CrediosCrmAdapter implements CRMAdapter {
   /**
    * Cria o lead no CRM via webhook de entrada existente
