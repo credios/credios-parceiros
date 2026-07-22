@@ -113,6 +113,7 @@ export function LeadForm() {
   const [propertyValue, setPropertyValue] = useState("");
   const [requestedAmount, setRequestedAmount] = useState("");
   const [propertyType, setPropertyType] = useState("");
+  const [quitado, setQuitado] = useState(false);
   const errors = state?.fieldErrors ?? {};
 
   // Regras de CGI (src/lib/qualificacao.ts). Nos demais produtos a garantia
@@ -352,19 +353,37 @@ export function LeadForm() {
                   />
                 </Field>
               </div>
-              <Field
-                label="Saldo devedor do imóvel"
-                htmlFor="saldoDevedor"
-                required
-                error={errors.saldoDevedor}
-                hint="Quanto ainda falta pagar do financiamento. Use 0 se o imóvel está quitado."
-              >
-                <MoneyInput
-                  id="saldoDevedor"
-                  name="saldoDevedor"
-                  error={errors.saldoDevedor}
-                />
-              </Field>
+              <div className="flex flex-col gap-3">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <Checkbox
+                    checked={quitado}
+                    onChange={(e) => setQuitado(e.target.checked)}
+                  />
+                  <span className="text-sm text-neutral-600">
+                    Imóvel já está quitado (sem saldo devedor)
+                  </span>
+                </label>
+                {quitado ? (
+                  // Quitado = saldo 0. A máscara de dinheiro não aceita "0", então
+                  // o valor vai por um input oculto — é o que destrava o cadastro
+                  // sem o parceiro precisar digitar R$ 1,00 pra burlar o obrigatório.
+                  <input type="hidden" name="saldoDevedor" value="0" />
+                ) : (
+                  <Field
+                    label="Saldo devedor do imóvel"
+                    htmlFor="saldoDevedor"
+                    required
+                    error={errors.saldoDevedor}
+                    hint="Quanto ainda falta pagar do financiamento."
+                  >
+                    <MoneyInput
+                      id="saldoDevedor"
+                      name="saldoDevedor"
+                      error={errors.saldoDevedor}
+                    />
+                  </Field>
+                )}
+              </div>
             </>
           )}
 

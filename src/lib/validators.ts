@@ -184,7 +184,7 @@ export const leadSchema = leadBaseSchema.superRefine((d, ctx) => {
   if (d.rendaTitular === undefined)
     err("rendaTitular", "Informe a renda mensal do titular.");
   if (d.saldoDevedor === undefined)
-    err("saldoDevedor", "Informe o saldo devedor (use 0 se o imóvel está quitado).");
+    err("saldoDevedor", "Informe o saldo devedor, ou marque que o imóvel está quitado.");
 
   // Tipo de imóvel fora da política (rural).
   if (d.propertyType && isDisqualifiedType(d.propertyType)) {
